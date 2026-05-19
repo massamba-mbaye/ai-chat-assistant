@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. 1.0.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build .zip and publish GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ai-chat-assistant
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Clean dev-only files from plugin
+        run: |
+          cd ai-chat-assistant
+          rm -rf .git .github .gitignore .claude
+          rm -rf node_modules vendor
+          find . -name ".DS_Store" -delete
+          find . -name "*.log" -delete
+
+      - name: Verify plugin structure
+        run: |
+          test -f ai-chat-assistant/ai-chat-assistant.php
+          test -f ai-chat-assistant/readme.txt
+          echo "Plugin structure OK"
+          ls -la ai-chat-assistant/
+
+      - name: Create zip archive
+        run: |
+          zip -r ai-chat-assistant.zip ai-chat-assistant \
+            -x "*.git*" "*node_modules*" "*.claude*"
+          ls -lh ai-chat-assistant.zip
+          echo "Files in zip:"
+          unzip -l ai-chat-assistant.zip | head -30
+
+      - name: Generate checksum
+        run: |
+          sha256sum ai-chat-assistant.zip > ai-chat-assistant.zip.sha256
+          cat ai-chat-assistant.zip.sha256
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: AI Chat Assistant v${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          files: |
+            ai-chat-assistant.zip
+            ai-chat-assistant.zip.sha256
