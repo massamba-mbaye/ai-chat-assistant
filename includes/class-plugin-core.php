@@ -1,0 +1,93 @@
+<?php
+/**
+ * Plugin core — singleton bootstrap.
+ *
+ * @package WordPressAIChatbot
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Class WAICB_Plugin_Core
+ *
+ * Bootstraps all sub-systems: REST API, admin pages, and frontend widget.
+ */
+class WAICB_Plugin_Core {
+
+	/** @var WAICB_Plugin_Core|null Singleton instance. */
+	private static $instance = null;
+
+	/**
+	 * Private constructor — use get_instance().
+	 */
+	private function __construct() {}
+
+	/**
+	 * Returns the singleton instance.
+	 *
+	 * @return WAICB_Plugin_Core
+	 */
+	public static function get_instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Initialise all plugin sub-systems.
+	 *
+	 * @return void
+	 */
+	public function init() {
+		// REST API — always registered (needed by the frontend widget).
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+
+		// Admin.
+		if ( is_admin() ) {
+			$this->init_admin();
+		}
+
+		// Frontend widget.
+		$this->init_frontend();
+	}
+
+	/**
+	 * Register REST routes.
+	 *
+	 * @return void
+	 */
+	public function register_rest_routes() {
+		$rest = new WAICB_Rest_Api();
+		$rest->register_routes();
+	}
+
+	/**
+	 * Initialise admin-only modules.
+	 *
+	 * @return void
+	 */
+	private function init_admin() {
+		$settings      = new WAICB_Admin_Settings();
+		$conversations = new WAICB_Admin_Conversations();
+		$logs          = new WAICB_Admin_Logs();
+
+		$settings->init();
+		$conversations->init();
+		$logs->init();
+
+		// AJAX handler must be registered outside rest_api_init to fire on admin-ajax.php.
+		$rest = new WAICB_Rest_Api();
+		add_action( 'wp_ajax_waicb_test_api', array( $rest, 'handle_test_api' ) );
+	}
+
+	/**
+	 * Initialise frontend widget.
+	 *
+	 * @return void
+	 */
+	private function init_frontend() {
+		$widget = new WAICB_Chatbot_Widget();
+		$widget->init();
+	}
+}

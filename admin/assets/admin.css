@@ -1,0 +1,112 @@
+/**
+ * WordPress AI Chatbot — Admin styles.
+ */
+
+/* ── Settings page ─────────────────────────────────────────────────────────── */
+
+.waicb-settings-wrap h2 {
+    margin-top: 2em;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #dcdcde;
+}
+
+/* ── Danger zone ───────────────────────────────────────────────────────────── */
+
+.waicb-danger-zone {
+    margin-top: 2em;
+    padding: 16px 20px;
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 4px;
+}
+
+.waicb-danger-zone h2 {
+    margin-top: 0;
+    color: #991b1b;
+    border-bottom-color: #fca5a5;
+}
+
+.waicb-btn-danger {
+    background: #dc2626 !important;
+    border-color: #b91c1c !important;
+    color: #fff !important;
+}
+
+.waicb-btn-danger:hover {
+    background: #b91c1c !important;
+}
+
+/* ── Conversation detail ───────────────────────────────────────────────────── */
+
+.waicb-conversation-view {
+    max-width: 680px;
+    margin-top: 20px;
+    padding: 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.waicb-msg {
+    margin-bottom: 14px;
+}
+
+.waicb-msg__meta {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.waicb-msg__meta strong {
+    font-size: 13px;
+    color: #111827;
+}
+
+.waicb-msg__content {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.waicb-msg--user .waicb-msg__content {
+    background: #dbeafe;
+    margin-left: 20%;
+}
+
+.waicb-msg--assistant .waicb-msg__content {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    margin-right: 20%;
+}
+
+/* ── Delete link ───────────────────────────────────────────────────────────── */
+
+.waicb-delete-link {
+    color: #dc2626 !important;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    text-decoration: underline;
+}
+
+.waicb-delete-link:hover {
+    color: #991b1b !important;
+}
+
+/* ── Test API result ───────────────────────────────────────────────────────── */
+
+#waicb-test-result.success {
+    color: #16a34a;
+}
+
+#waicb-test-result.error {
+    color: #dc2626;
+}

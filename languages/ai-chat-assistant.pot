@@ -1,0 +1,367 @@
+# Copyright (C) 2024 WordPress AI Chatbot
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: WordPress AI Chatbot 1.0.0\n"
+"Report-Msgid-Bugs-To: https://example.com/wordpress-ai-chatbot\n"
+"POT-Creation-Date: 2024-01-01T00:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2024-01-01T00:00:00+00:00\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: WordPress AI Chatbot\n"
+"X-Domain: wordpress-ai-chatbot\n"
+
+#. Plugin name.
+#: wordpress-ai-chatbot.php
+msgid "WordPress AI Chatbot"
+msgstr ""
+
+#. Plugin description.
+#: wordpress-ai-chatbot.php
+msgid "Intègre un chatbot IA OpenAI (Chat Completion + Assistants API) sur votre site WordPress."
+msgstr ""
+
+#: includes/class-security.php
+msgid "Nonce invalide."
+msgstr ""
+
+#: includes/class-security.php
+msgid "Trop de requêtes. Veuillez patienter."
+msgstr ""
+
+#: includes/class-security.php
+msgid "Le message ne peut pas être vide."
+msgstr ""
+
+#: includes/class-security.php
+msgid "Le message dépasse la limite de %d caractères."
+msgstr ""
+
+#: includes/class-api-router.php
+msgid "Clé API OpenAI non configurée."
+msgstr ""
+
+#: includes/class-openai-assistant.php
+msgid "Assistant ID non configuré."
+msgstr ""
+
+#: includes/class-openai-assistant.php
+msgid "Impossible de créer un thread OpenAI."
+msgstr ""
+
+#: includes/class-openai-assistant.php
+msgid "Impossible de créer un run OpenAI."
+msgstr ""
+
+#: includes/class-openai-assistant.php
+msgid "Délai d'attente de l'assistant dépassé."
+msgstr ""
+
+#: includes/class-openai-assistant.php
+msgid "Réponse de l'assistant introuvable."
+msgstr ""
+
+#: includes/class-openai-assistant.php
+msgid "Assistant run failed: %s"
+msgstr ""
+
+#: includes/class-openai-chat.php
+msgid "Réponse OpenAI inattendue."
+msgstr ""
+
+#: includes/class-rest-api.php
+msgid "Le chatbot est désactivé."
+msgstr ""
+
+#: includes/class-rest-api.php
+msgid "Accès refusé."
+msgstr ""
+
+#: includes/class-rest-api.php
+msgid "Clé API non configurée."
+msgstr ""
+
+#: includes/class-rest-api.php
+msgid "Connexion réussie ✓"
+msgstr ""
+
+#: includes/class-admin-settings.php
+msgid "Réglages enregistrés."
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "WordPress AI Chatbot — Réglages"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Connexion OpenAI"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Clé API OpenAI"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Laissez vide pour conserver la valeur actuelle."
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Tester la connexion API"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Mode"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Moteur OpenAI"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Chat Completion"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Assistants API"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Modèle"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "System Prompt"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Température"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Tokens max"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Limite historique"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Nombre de messages injectés dans le contexte."
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Assistant ID"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Widget"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Titre du widget"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Message de bienvenue"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Position"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Bas droite"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Bas gauche"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Couleur principale"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Durée du cookie (jours)"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Activer le chatbot"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Afficher le chatbot sur le site"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Enregistrer les réglages"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Zone de danger"
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Cette action supprime définitivement toutes les conversations et logs."
+msgstr ""
+
+#: admin/views/settings-page.php
+msgid "Vider toutes les conversations"
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Conversations"
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Conversation supprimée."
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Session"
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Utilisateur"
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Messages"
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Dernière activité"
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Actions"
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Aucune conversation."
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Anonyme"
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Voir"
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Supprimer"
+msgstr ""
+
+#: admin/views/conversations-page.php
+msgid "Supprimer cette conversation ?"
+msgstr ""
+
+#: admin/views/conversation-detail.php
+msgid "Session introuvable."
+msgstr ""
+
+#: admin/views/conversation-detail.php
+msgid "Conversation"
+msgstr ""
+
+#: admin/views/conversation-detail.php
+msgid "Retour à la liste"
+msgstr ""
+
+#: admin/views/conversation-detail.php
+msgid "Mode"
+msgstr ""
+
+#: admin/views/conversation-detail.php
+msgid "Créée le"
+msgstr ""
+
+#: admin/views/conversation-detail.php
+msgid "Aucun message."
+msgstr ""
+
+#: admin/views/conversation-detail.php
+msgid "Utilisateur"
+msgstr ""
+
+#: admin/views/conversation-detail.php
+msgid "Assistant"
+msgstr ""
+
+#: admin/views/conversation-detail.php
+msgid "Supprimer cette conversation"
+msgstr ""
+
+#: admin/views/logs-page.php
+msgid "Logs API"
+msgstr ""
+
+#: admin/views/logs-page.php
+msgid "Date"
+msgstr ""
+
+#: admin/views/logs-page.php
+msgid "Tokens prompt"
+msgstr ""
+
+#: admin/views/logs-page.php
+msgid "Tokens completion"
+msgstr ""
+
+#: admin/views/logs-page.php
+msgid "Total tokens"
+msgstr ""
+
+#: admin/views/logs-page.php
+msgid "Coût (USD)"
+msgstr ""
+
+#: admin/views/logs-page.php
+msgid "Aucun log."
+msgstr ""
+
+#: admin/views/logs-page.php
+msgid "Totaux"
+msgstr ""
+
+#: public/views/chatbot-widget.php
+msgid "Ouvrir %s"
+msgstr ""
+
+#: public/views/chatbot-widget.php
+msgid "Fermer"
+msgstr ""
+
+#: public/views/chatbot-widget.php
+msgid "Écrivez votre message…"
+msgstr ""
+
+#: public/views/chatbot-widget.php
+msgid "Message"
+msgstr ""
+
+#: public/views/chatbot-widget.php
+msgid "Envoyer"
+msgstr ""
+
+#: public/class-chatbot-widget.php
+msgid "Assistant IA"
+msgstr ""
+
+#: public/class-chatbot-widget.php
+msgid "Bonjour ! Comment puis-je vous aider ?"
+msgstr ""
+
+#: public/class-chatbot-widget.php
+msgid "Écrivez votre message…"
+msgstr ""
+
+#: public/class-chatbot-widget.php
+msgid "Une erreur est survenue. Veuillez réessayer."
+msgstr ""
