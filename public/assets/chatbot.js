@@ -381,7 +381,13 @@
         fetch( waicbConfig.restUrl, {
             method:      'POST',
             credentials: 'same-origin',
-            headers:     { 'Content-Type': 'application/json' },
+            headers:     {
+                'Content-Type': 'application/json',
+                // Authenticates the cookie session so the REST request runs as the
+                // same user that generated the chat nonce (fixes "Nonce invalide"
+                // for logged-in users).
+                'X-WP-Nonce': waicbConfig.restNonce,
+            },
             body: JSON.stringify( {
                 message:     text,
                 session_key: sessionKey,

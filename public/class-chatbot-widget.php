@@ -82,6 +82,7 @@ class WAICB_Chatbot_Widget {
 			array(
 				'restUrl'        => rest_url( 'waicb/v1/chat' ),
 				'nonce'          => wp_create_nonce( 'waicb_chat_nonce' ),
+				'restNonce'      => wp_create_nonce( 'wp_rest' ),
 				'position'       => get_option( 'waicb_widget_position', 'bottom-right' ),
 				'color'          => get_option( 'waicb_widget_color', '#C49A2E' ),
 				'title'          => get_option( 'waicb_widget_title', __( 'Assistant IA', 'ai-chat-assistant' ) ),

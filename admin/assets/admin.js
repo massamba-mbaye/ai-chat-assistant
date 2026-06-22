@@ -109,6 +109,37 @@
         }
     }
 
+    // ── Provider sections: show only the active provider ─────────────────────
+    var providerSelect = document.getElementById( 'waicb_provider' );
+
+    function toggleProviderSections() {
+        var active = providerSelect ? providerSelect.value : 'openai';
+        document.querySelectorAll( '[data-provider-section]' ).forEach( function ( el ) {
+            el.style.display = ( el.getAttribute( 'data-provider-section' ) === active ) ? '' : 'none';
+        } );
+    }
+
+    if ( providerSelect ) {
+        providerSelect.addEventListener( 'change', toggleProviderSections );
+        toggleProviderSections();
+    }
+
+    // ── OpenAI engine: show Chat Completion vs Assistants API ────────────────
+    var modeRadios = document.querySelectorAll( 'input[name="waicb_mode"]' );
+
+    function toggleModeSections() {
+        var active = 'chat';
+        modeRadios.forEach( function ( r ) { if ( r.checked ) { active = r.value; } } );
+        document.querySelectorAll( '[data-mode-section]' ).forEach( function ( el ) {
+            el.style.display = ( el.getAttribute( 'data-mode-section' ) === active ) ? '' : 'none';
+        } );
+    }
+
+    if ( modeRadios.length ) {
+        modeRadios.forEach( function ( r ) { r.addEventListener( 'change', toggleModeSections ); } );
+        toggleModeSections();
+    }
+
     // ── Display rules: show/hide page list ───────────────────────────────────
     var displayRadios   = document.querySelectorAll( 'input[name="waicb_display_mode"]' );
     var displayPagesRow = document.getElementById( 'waicb-display-pages-row' );

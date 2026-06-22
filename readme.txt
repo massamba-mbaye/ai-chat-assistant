@@ -3,7 +3,7 @@ Contributors:      massambambaye
 Tags:              chatbot, openai, claude, anthropic, ai
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.1.0
+Stable tag:        1.1.1
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -77,6 +77,10 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 
 == Changelog ==
 
+= 1.1.1 =
+* Fix: "Nonce invalide" error when sending a message while logged in — the chat request now authenticates the cookie session via the WordPress REST nonce (X-WP-Nonce).
+* UX: the settings page now shows only the active provider's options (OpenAI or Claude), and the OpenAI engine reveals either Chat Completion or Assistants API fields. Shared generation settings (system prompt, max tokens, history) are grouped separately.
+
 = 1.1.0 =
 * New: Claude (Anthropic) provider via the Messages API, alongside OpenAI.
 * New: provider selector with a separate, encrypted API key per provider.
@@ -90,6 +94,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Fixes the "Nonce invalide" error for logged-in users and streamlines the settings page per provider.
 
 = 1.1.0 =
 Adds Claude (Anthropic) support, automatic GitHub updates, and security hardening. Install once manually to enable future automatic updates.
