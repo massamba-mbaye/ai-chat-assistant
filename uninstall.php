@@ -18,7 +18,10 @@ $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}aichat_sessions" );  // phpcs
 
 // Remove all plugin options.
 $waicb_options = array(
+	'waicb_provider',
 	'waicb_api_key',
+	'waicb_claude_api_key',
+	'waicb_claude_model',
 	'waicb_mode',
 	'waicb_model',
 	'waicb_assistant_id',
@@ -31,6 +34,10 @@ $waicb_options = array(
 	'waicb_widget_color',
 	'waicb_welcome_message',
 	'waicb_cookie_days',
+	'waicb_quick_replies',
+	'waicb_bubble_icon',
+	'waicb_display_mode',
+	'waicb_display_pages',
 	'waicb_enabled',
 	'waicb_db_version',
 );
@@ -38,6 +45,9 @@ $waicb_options = array(
 foreach ( $waicb_options as $waicb_opt ) {
 	delete_option( $waicb_opt );
 }
+
+// Remove the cached GitHub release lookup.
+delete_transient( 'waicb_github_release' );
 
 // Remove thread IDs stored by the Assistants API (pattern: waicb_thread_*).
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.SlowDBQuery.slow_db_query_field_in

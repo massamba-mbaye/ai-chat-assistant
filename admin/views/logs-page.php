@@ -27,13 +27,12 @@ $waicb_totals      = $waicb_result['totals'];
 				<th><?php esc_html_e( 'Tokens prompt', 'ai-chat-assistant' ); ?></th>
 				<th><?php esc_html_e( 'Tokens completion', 'ai-chat-assistant' ); ?></th>
 				<th><?php esc_html_e( 'Total tokens', 'ai-chat-assistant' ); ?></th>
-				<th><?php esc_html_e( 'Coût (USD)', 'ai-chat-assistant' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 		<?php if ( empty( $waicb_logs ) ) : ?>
 			<tr>
-				<td colspan="7"><?php esc_html_e( 'Aucun log.', 'ai-chat-assistant' ); ?></td>
+				<td colspan="6"><?php esc_html_e( 'Aucun log.', 'ai-chat-assistant' ); ?></td>
 			</tr>
 		<?php else : ?>
 			<?php foreach ( $waicb_logs as $waicb_log ) : ?>
@@ -44,7 +43,6 @@ $waicb_totals      = $waicb_result['totals'];
 					<td><?php echo (int) $waicb_log['prompt_tokens']; ?></td>
 					<td><?php echo (int) $waicb_log['completion_tokens']; ?></td>
 					<td><?php echo (int) $waicb_log['total_tokens']; ?></td>
-					<td>$<?php echo esc_html( number_format( (float) $waicb_log['cost_usd'], 6 ) ); ?></td>
 				</tr>
 			<?php endforeach; ?>
 		<?php endif; ?>
@@ -55,7 +53,6 @@ $waicb_totals      = $waicb_result['totals'];
 				<th><strong><?php echo (int) $waicb_totals['prompt_tokens']; ?></strong></th>
 				<th><strong><?php echo (int) $waicb_totals['completion_tokens']; ?></strong></th>
 				<th><strong><?php echo (int) $waicb_totals['total_tokens']; ?></strong></th>
-				<th><strong>$<?php echo esc_html( number_format( (float) $waicb_totals['cost_usd'], 6 ) ); ?></strong></th>
 			</tr>
 		</tfoot>
 	</table>

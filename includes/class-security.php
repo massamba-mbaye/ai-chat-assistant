@@ -146,26 +146,54 @@ class WAICB_Security {
 	/**
 	 * Retrieve the visitor's IP address.
 	 *
-	 * @return string IP address (may be behind a proxy).
+	 * Forwarded-for headers (X-Forwarded-For, CF-Connecting-IP, X-Real-IP) are
+	 * spoofable by the client, so they are ONLY consulted when the site operator
+	 * has confirmed the site sits behind a trusted reverse proxy / CDN via the
+	 * `waicb_trust_proxy_headers` filter. Otherwise REMOTE_ADDR is authoritative.
+	 *
+	 * This prevents an attacker from rotating a forged header to bypass the
+	 * per-IP rate limit (and thus run up API costs).
+	 *
+	 * @return string IP address.
 	 */
 	private static function get_client_ip() {
-		$keys = array(
-			'HTTP_CF_CONNECTING_IP',
-			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_REAL_IP',
-			'REMOTE_ADDR',
-		);
+		/**
+		 * Filter: whether the site is behind a trusted reverse proxy / CDN.
+		 *
+		 * Return true ONLY if every request reaching PHP is guaranteed to pass
+		 * through your proxy (e.g. Cloudflare, a load balancer) that sets the
+		 * forwarded headers itself. Returning true on a directly-exposed site
+		 * lets visitors spoof their IP.
+		 *
+		 * @param bool $trust Default false.
+		 */
+		$trust_proxy = (bool) apply_filters( 'waicb_trust_proxy_headers', false );
 
-		foreach ( $keys as $key ) {
-			if ( ! empty( $_SERVER[ $key ] ) ) {
-				$ip = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
-				// Take the first IP in a comma-separated list.
-				if ( strpos( $ip, ',' ) !== false ) {
-					$ip = trim( explode( ',', $ip )[0] );
+		if ( $trust_proxy ) {
+			$keys = array(
+				'HTTP_CF_CONNECTING_IP',
+				'HTTP_X_FORWARDED_FOR',
+				'HTTP_X_REAL_IP',
+			);
+
+			foreach ( $keys as $key ) {
+				if ( ! empty( $_SERVER[ $key ] ) ) {
+					$ip = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
+					// Take the first IP in a comma-separated list.
+					if ( strpos( $ip, ',' ) !== false ) {
+						$ip = trim( explode( ',', $ip )[0] );
+					}
+					if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+						return $ip;
+					}
 				}
-				if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-					return $ip;
-				}
+			}
+		}
+
+		if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+			$remote = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+			if ( filter_var( $remote, FILTER_VALIDATE_IP ) ) {
+				return $remote;
 			}
 		}
 

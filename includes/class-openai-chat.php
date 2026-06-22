@@ -18,20 +18,6 @@ class WAICB_Openai_Chat {
 	/** OpenAI API base URL. */
 	const API_BASE = 'https://api.openai.com/v1';
 
-	/**
-	 * Cost table in USD per 1 000 tokens: [prompt, completion].
-	 * Update as OpenAI pricing changes.
-	 *
-	 * @var array
-	 */
-	private static $cost_table = array(
-		'gpt-4o'          => array( 0.005, 0.015 ),
-		'gpt-4o-mini'     => array( 0.00015, 0.0006 ),
-		'gpt-4-turbo'     => array( 0.01, 0.03 ),
-		'gpt-4'           => array( 0.03, 0.06 ),
-		'gpt-3.5-turbo'   => array( 0.0005, 0.0015 ),
-	);
-
 	/** @var string OpenAI API key. */
 	private $api_key;
 
@@ -131,43 +117,11 @@ class WAICB_Openai_Chat {
 
 		$reply = $data['choices'][0]['message']['content'];
 		$usage = isset( $data['usage'] ) ? $data['usage'] : array();
-		$cost  = $this->calculate_cost( $model, $usage );
 
 		return array(
 			'reply' => $reply,
 			'usage' => $usage,
-			'cost'  => $cost,
+			'model' => $model,
 		);
-	}
-
-	/**
-	 * Calculate the USD cost from token usage.
-	 *
-	 * @param string $model Model name.
-	 * @param array  $usage Usage array from OpenAI response.
-	 * @return float Cost in USD.
-	 */
-	private function calculate_cost( $model, $usage ) {
-		if ( empty( $usage ) ) {
-			return 0.0;
-		}
-
-		// Find the matching cost row (partial match for versioned model names).
-		$rates = null;
-		foreach ( self::$cost_table as $key => $row ) {
-			if ( strpos( $model, $key ) !== false ) {
-				$rates = $row;
-				break;
-			}
-		}
-
-		if ( null === $rates ) {
-			return 0.0;
-		}
-
-		$prompt_cost     = ( isset( $usage['prompt_tokens'] ) ? $usage['prompt_tokens'] : 0 ) / 1000 * $rates[0];
-		$completion_cost = ( isset( $usage['completion_tokens'] ) ? $usage['completion_tokens'] : 0 ) / 1000 * $rates[1];
-
-		return round( $prompt_cost + $completion_cost, 6 );
 	}
 }

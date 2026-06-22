@@ -73,7 +73,7 @@ class WAICB_Openai_Assistant {
 		return array(
 			'reply' => $reply,
 			'usage' => $usage,
-			'cost'  => 0.0,
+			'model' => 'assistant',
 		);
 	}
 

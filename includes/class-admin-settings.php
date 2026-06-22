@@ -109,11 +109,29 @@ class WAICB_Admin_Settings {
 
 		check_admin_referer( 'waicb_settings_save' );
 
-		// API Key — only update if a new value was submitted.
+		// Provider (openai | claude).
+		$provider = isset( $_POST['waicb_provider'] ) && 'claude' === $_POST['waicb_provider'] ? 'claude' : 'openai';
+		update_option( 'waicb_provider', $provider );
+
+		// OpenAI API Key — only update if a new value was submitted.
 		$submitted_key = isset( $_POST['waicb_api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_api_key'] ) ) : '';
 		if ( '' !== $submitted_key && strpos( $submitted_key, '****' ) === false ) {
 			update_option( 'waicb_api_key', WAICB_Crypto::encrypt( $submitted_key ) );
 		}
+
+		// Claude (Anthropic) API Key — only update if a new value was submitted.
+		$submitted_claude_key = isset( $_POST['waicb_claude_api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_claude_api_key'] ) ) : '';
+		if ( '' !== $submitted_claude_key && strpos( $submitted_claude_key, '****' ) === false ) {
+			update_option( 'waicb_claude_api_key', WAICB_Crypto::encrypt( $submitted_claude_key ) );
+		}
+
+		// Claude model.
+		$allowed_claude_models = array( 'claude-opus-4-8', 'claude-sonnet-4-6', 'claude-haiku-4-5' );
+		$claude_model          = isset( $_POST['waicb_claude_model'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_claude_model'] ) ) : 'claude-sonnet-4-6';
+		if ( ! in_array( $claude_model, $allowed_claude_models, true ) ) {
+			$claude_model = 'claude-sonnet-4-6';
+		}
+		update_option( 'waicb_claude_model', $claude_model );
 
 		// Mode.
 		$mode = isset( $_POST['waicb_mode'] ) && 'assistant' === $_POST['waicb_mode'] ? 'assistant' : 'chat';

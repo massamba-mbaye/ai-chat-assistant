@@ -2,30 +2,37 @@
  * WordPress AI Chatbot — Admin JS.
  *
  * Handles:
- * - "Test API connection" button
+ * - "Test API connection" buttons (OpenAI + Claude)
+ * - Bubble icon media uploader
+ * - Display rules show/hide
  * - "Clear conversations" confirmation
  */
 ( function () {
     'use strict';
 
-    // ── Test API connection ──────────────────────────────────────────────────
-    var testBtn    = document.getElementById( 'waicb-test-api' );
-    var testResult = document.getElementById( 'waicb-test-result' );
+    // ── Test API connection (OpenAI + Claude) ────────────────────────────────
+    function wireTestButton( btnId, resultId, keyFieldId ) {
+        var testBtn    = document.getElementById( btnId );
+        var testResult = document.getElementById( resultId );
 
-    if ( testBtn && testResult ) {
+        if ( ! testBtn || ! testResult ) {
+            return;
+        }
+
         testBtn.addEventListener( 'click', function () {
-            testResult.textContent    = waicbAdmin.i18n.testing;
-            testResult.className      = '';
-            testBtn.disabled          = true;
+            testResult.textContent = waicbAdmin.i18n.testing;
+            testResult.className    = '';
+            testBtn.disabled        = true;
 
             var formData = new FormData();
             formData.append( 'action', 'waicb_test_api' );
             formData.append( 'nonce',  waicbAdmin.nonce );
+            formData.append( 'provider', testBtn.getAttribute( 'data-provider' ) || 'openai' );
 
             // Send the key from the field if it has been modified (not the masked placeholder).
-            var apiKeyField = document.getElementById( 'waicb_api_key' );
+            var apiKeyField = document.getElementById( keyFieldId );
             var apiKeyValue = apiKeyField ? apiKeyField.value : '';
-            if ( apiKeyValue && apiKeyValue.indexOf( '\u2022' ) === -1 && apiKeyValue.indexOf( '****' ) === -1 ) {
+            if ( apiKeyValue && apiKeyValue.indexOf( '•' ) === -1 && apiKeyValue.indexOf( '****' ) === -1 ) {
                 formData.append( 'api_key', apiKeyValue );
             }
 
@@ -52,6 +59,9 @@
             } );
         } );
     }
+
+    wireTestButton( 'waicb-test-api', 'waicb-test-result', 'waicb_api_key' );
+    wireTestButton( 'waicb-test-claude', 'waicb-test-claude-result', 'waicb_claude_api_key' );
 
     // ── Bubble icon media uploader ───────────────────────────────────────────
     var uploadBtn  = document.getElementById( 'waicb-upload-icon' );

@@ -93,7 +93,6 @@ class WAICB_Rest_Api {
 
 			$reply = isset( $result['reply'] ) ? $result['reply'] : '';
 			$usage = isset( $result['usage'] ) ? $result['usage'] : array();
-			$cost  = isset( $result['cost'] ) ? (float) $result['cost'] : 0.0;
 
 			// Filter reply before saving / sending.
 			$reply = apply_filters( 'waicb_before_send_response', $reply, $session_id );
@@ -102,9 +101,9 @@ class WAICB_Rest_Api {
 			WAICB_Database::save_message( $session_id, 'user', $clean_message );
 			WAICB_Database::save_message( $session_id, 'assistant', $reply );
 
-			// 9. Insert log.
-			$model = get_option( 'waicb_mode', 'chat' ) === 'assistant'
-				? 'assistant'
+			// 9. Insert log. The engine reports the actual model used.
+			$model = isset( $result['model'] ) && '' !== $result['model']
+				? $result['model']
 				: get_option( 'waicb_model', 'gpt-4o-mini' );
 
 			WAICB_Database::insert_log(
@@ -113,7 +112,7 @@ class WAICB_Rest_Api {
 				isset( $usage['prompt_tokens'] ) ? (int) $usage['prompt_tokens'] : 0,
 				isset( $usage['completion_tokens'] ) ? (int) $usage['completion_tokens'] : 0,
 				isset( $usage['total_tokens'] ) ? (int) $usage['total_tokens'] : 0,
-				$cost
+				0.0
 			);
 
 			// 10. Fire action hook.
@@ -147,7 +146,7 @@ class WAICB_Rest_Api {
 	}
 
 	/**
-	 * AJAX handler — test the OpenAI API connection from the admin.
+	 * AJAX handler — test the OpenAI or Claude API connection from the admin.
 	 *
 	 * @return void
 	 */
@@ -159,34 +158,79 @@ class WAICB_Rest_Api {
 			return;
 		}
 
-		// Accept a key submitted directly from the form field (not yet saved).
-		$raw_key = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
-		if ( '' !== $raw_key ) {
-			$api_key = $raw_key;
-		} else {
-			$api_key = WAICB_Crypto::decrypt( get_option( 'waicb_api_key', '' ) );
-		}
+		$provider = isset( $_POST['provider'] ) && 'claude' === $_POST['provider'] ? 'claude' : 'openai';
+		$raw_key  = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
 
-		if ( '' === $api_key ) {
-			wp_send_json_error( array( 'message' => __( 'Clé API non configurée.', 'ai-chat-assistant' ) ) );
+		if ( 'claude' === $provider ) {
+			$model = get_option( 'waicb_claude_model', 'claude-sonnet-4-6' );
+			$this->test_connection(
+				array(
+					'key_option'  => 'waicb_claude_api_key',
+					'no_key_msg'  => __( 'Clé API Claude non configurée.', 'ai-chat-assistant' ),
+					'success_msg' => __( 'Connexion Claude réussie ✓', 'ai-chat-assistant' ),
+					'url'         => 'https://api.anthropic.com/v1/messages',
+					'headers'     => array( 'anthropic-version' => '2023-06-01' ),
+					'auth_header' => 'x-api-key',
+					'auth_prefix' => '',
+					'body'        => array(
+						'model'      => $model,
+						'max_tokens' => 5,
+						'messages'   => array( array( 'role' => 'user', 'content' => 'Hi' ) ),
+					),
+				),
+				$raw_key
+			);
 			return;
 		}
 
+		$this->test_connection(
+			array(
+				'key_option'  => 'waicb_api_key',
+				'no_key_msg'  => __( 'Clé API OpenAI non configurée.', 'ai-chat-assistant' ),
+				'success_msg' => __( 'Connexion OpenAI réussie ✓', 'ai-chat-assistant' ),
+				'url'         => 'https://api.openai.com/v1/chat/completions',
+				'headers'     => array(),
+				'auth_header' => 'Authorization',
+				'auth_prefix' => 'Bearer ',
+				'body'        => array(
+					'model'      => 'gpt-4o-mini',
+					'messages'   => array( array( 'role' => 'user', 'content' => 'Hi' ) ),
+					'max_tokens' => 5,
+				),
+			),
+			$raw_key
+		);
+	}
+
+	/**
+	 * Generic connection tester for any provider.
+	 *
+	 * @param array  $config  {key_option, no_key_msg, success_msg, url, headers, auth_header, auth_prefix, body}.
+	 * @param string $raw_key Key submitted from the form (may be empty → use stored).
+	 * @return void
+	 */
+	private function test_connection( $config, $raw_key ) {
+		$api_key = '' !== $raw_key ? $raw_key : WAICB_Crypto::decrypt( get_option( $config['key_option'], '' ) );
+
+		if ( '' === $api_key ) {
+			wp_send_json_error( array( 'message' => $config['no_key_msg'] ) );
+			return;
+		}
+
+		$headers = array_merge(
+			$config['headers'],
+			array(
+				'Content-Type'           => 'application/json',
+				$config['auth_header'] => $config['auth_prefix'] . $api_key,
+			)
+		);
+
 		$response = wp_remote_post(
-			'https://api.openai.com/v1/chat/completions',
+			$config['url'],
 			array(
 				'timeout' => 15,
-				'headers' => array(
-					'Authorization' => 'Bearer ' . $api_key,
-					'Content-Type'  => 'application/json',
-				),
-				'body'    => wp_json_encode(
-					array(
-						'model'      => 'gpt-4o-mini',
-						'messages'   => array( array( 'role' => 'user', 'content' => 'Hi' ) ),
-						'max_tokens' => 5,
-					)
-				),
+				'headers' => $headers,
+				'body'    => wp_json_encode( $config['body'] ),
 			)
 		);
 
@@ -196,13 +240,14 @@ class WAICB_Rest_Api {
 		}
 
 		$code = wp_remote_retrieve_response_code( $response );
-		$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( 200 === $code ) {
-			wp_send_json_success( array( 'message' => __( 'Connexion réussie ✓', 'ai-chat-assistant' ) ) );
-		} else {
-			$err = isset( $data['error']['message'] ) ? $data['error']['message'] : 'HTTP ' . $code;
-			wp_send_json_error( array( 'message' => $err ) );
+			wp_send_json_success( array( 'message' => $config['success_msg'] ) );
+			return;
 		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+		$err  = isset( $data['error']['message'] ) ? $data['error']['message'] : 'HTTP ' . $code;
+		wp_send_json_error( array( 'message' => $err ) );
 	}
 }

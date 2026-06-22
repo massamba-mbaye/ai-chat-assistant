@@ -7,8 +7,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
+$waicb_provider        = get_option( 'waicb_provider', 'openai' );
 $waicb_api_key_stored  = get_option( 'waicb_api_key', '' );
 $waicb_has_api_key     = '' !== $waicb_api_key_stored;
+$waicb_has_claude_key  = '' !== get_option( 'waicb_claude_api_key', '' );
+$waicb_claude_model    = get_option( 'waicb_claude_model', 'claude-sonnet-4-6' );
 $waicb_mode            = get_option( 'waicb_mode', 'chat' );
 $waicb_model           = get_option( 'waicb_model', 'gpt-4o-mini' );
 $waicb_system_prompt   = WAICB_Crypto::decrypt( get_option( 'waicb_system_prompt', '' ) );
@@ -41,6 +44,23 @@ $waicb_cleared = isset( $_GET['cleared'] ) && '1' === sanitize_key( $_GET['clear
 		<input type="hidden" name="action" value="waicb_save_settings">
 		<?php wp_nonce_field( 'waicb_settings_save' ); ?>
 
+		<!-- ── Fournisseur d'IA ──────────────────────────────────────── -->
+		<h2><?php esc_html_e( 'Fournisseur d\'IA', 'ai-chat-assistant' ); ?></h2>
+		<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row">
+					<label for="waicb_provider"><?php esc_html_e( 'Fournisseur actif', 'ai-chat-assistant' ); ?></label>
+				</th>
+				<td>
+					<select id="waicb_provider" name="waicb_provider">
+						<option value="openai" <?php selected( $waicb_provider, 'openai' ); ?>>OpenAI</option>
+						<option value="claude" <?php selected( $waicb_provider, 'claude' ); ?>>Claude (Anthropic)</option>
+					</select>
+					<p class="description"><?php esc_html_e( 'Détermine quel fournisseur répond aux messages du chatbot. Configurez les deux ci-dessous ; seul le fournisseur sélectionné est utilisé.', 'ai-chat-assistant' ); ?></p>
+				</td>
+			</tr>
+		</table>
+
 		<!-- ── Connexion OpenAI ──────────────────────────────────────── -->
 		<h2><?php esc_html_e( 'Connexion OpenAI', 'ai-chat-assistant' ); ?></h2>
 		<table class="form-table" role="presentation">
@@ -57,10 +77,54 @@ $waicb_cleared = isset( $_GET['cleared'] ) && '1' === sanitize_key( $_GET['clear
 					       autocomplete="new-password"
 					       placeholder="sk-...">
 					<p class="description"><?php esc_html_e( 'Laissez vide pour conserver la valeur actuelle.', 'ai-chat-assistant' ); ?></p>
-					<button type="button" id="waicb-test-api" class="button button-secondary" style="margin-top:6px;">
-						<?php esc_html_e( 'Tester la connexion API', 'ai-chat-assistant' ); ?>
+					<button type="button" id="waicb-test-api" class="button button-secondary" data-provider="openai" style="margin-top:6px;">
+						<?php esc_html_e( 'Tester la connexion OpenAI', 'ai-chat-assistant' ); ?>
 					</button>
 					<span id="waicb-test-result" style="margin-left:10px;font-weight:600;"></span>
+				</td>
+			</tr>
+		</table>
+
+		<!-- ── Connexion Claude (Anthropic) ──────────────────────────── -->
+		<h2><?php esc_html_e( 'Connexion Claude (Anthropic)', 'ai-chat-assistant' ); ?></h2>
+		<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row">
+					<label for="waicb_claude_api_key"><?php esc_html_e( 'Clé API Claude', 'ai-chat-assistant' ); ?></label>
+				</th>
+				<td>
+					<input type="password"
+					       id="waicb_claude_api_key"
+					       name="waicb_claude_api_key"
+					       class="regular-text"
+					       value="<?php echo $waicb_has_claude_key ? '****************' : ''; ?>"
+					       autocomplete="new-password"
+					       placeholder="sk-ant-...">
+					<p class="description"><?php esc_html_e( 'Laissez vide pour conserver la valeur actuelle.', 'ai-chat-assistant' ); ?></p>
+					<button type="button" id="waicb-test-claude" class="button button-secondary" data-provider="claude" style="margin-top:6px;">
+						<?php esc_html_e( 'Tester la connexion Claude', 'ai-chat-assistant' ); ?>
+					</button>
+					<span id="waicb-test-claude-result" style="margin-left:10px;font-weight:600;"></span>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<label for="waicb_claude_model"><?php esc_html_e( 'Modèle Claude', 'ai-chat-assistant' ); ?></label>
+				</th>
+				<td>
+					<select id="waicb_claude_model" name="waicb_claude_model">
+						<?php
+						$waicb_claude_models = array(
+							'claude-haiku-4-5'  => 'Claude Haiku 4.5 (rapide, économique)',
+							'claude-sonnet-4-6' => 'Claude Sonnet 4.6 (équilibré)',
+							'claude-opus-4-8'   => 'Claude Opus 4.8 (le plus capable)',
+						);
+						foreach ( $waicb_claude_models as $waicb_cm_value => $waicb_cm_label ) :
+							?>
+							<option value="<?php echo esc_attr( $waicb_cm_value ); ?>" <?php selected( $waicb_claude_model, $waicb_cm_value ); ?>><?php echo esc_html( $waicb_cm_label ); ?></option>
+						<?php endforeach; ?>
+					</select>
+					<p class="description"><?php esc_html_e( 'Claude utilise le System Prompt et la limite de tokens ci-dessous. Le mode Assistants API est spécifique à OpenAI.', 'ai-chat-assistant' ); ?></p>
 				</td>
 			</tr>
 		</table>

@@ -47,7 +47,13 @@
             /<iframe[^>]+src=["']([^"']*)["'][^>]*>[\s\S]*?<\/iframe>/gi,
             function ( match, src ) {
                 if ( /^https?:\/\/([a-z0-9-]+\.)*google\.com\/maps/i.test( src ) ) {
-                    iframes.push( match );
+                    // Rebuild a clean iframe with ONLY the validated src — never
+                    // re-insert the original tag (it could carry onload= etc.).
+                    var safeSrc = src.replace( /"/g, '%22' );
+                    iframes.push(
+                        '<iframe src="' + safeSrc + '" style="border:0;width:100%;height:100%;" ' +
+                        'loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>'
+                    );
                     return '\x00MAP' + ( iframes.length - 1 ) + '\x00';
                 }
                 return ''; // Drop non-trusted iframes.
@@ -64,7 +70,10 @@
         escaped = escaped.replace(
             /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
             function ( _, linkText, url ) {
-                return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + linkText + '</a>';
+                // Escape quotes/spaces so the URL can't break out of the href
+                // attribute (the earlier HTML-escape pass only handles < > &).
+                var safeUrl = url.replace( /"/g, '%22' ).replace( /'/g, '%27' ).replace( /\s/g, '%20' );
+                return '<a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer">' + linkText + '</a>';
             }
         );
 

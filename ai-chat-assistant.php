@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       AI Chat Assistant
  * Plugin URI:        https://www.im-mass.com/plugins/ai-chat-assistant
- * Description:       Adds an OpenAI-powered chatbot (Chat Completions + Assistants API) to any site.
- * Version:           1.0.0
+ * Description:       Adds an OpenAI- or Claude-powered chatbot to any site (OpenAI Chat Completions + Assistants API, Anthropic Messages API).
+ * Version:           1.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Massamba MBAYE
@@ -11,6 +11,7 @@
  * License:           GPL v2 or later
  * Text Domain:       ai-chat-assistant
  * Domain Path:       /languages
+ * Update URI:        https://github.com/massamba-mbaye/ai-chat-assistant
  *
  * @package WordPressAIChatbot
  */
@@ -18,7 +19,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // ── Constantes ────────────────────────────────────────────────────────────────
-define( 'WAICB_VERSION', '1.0.0' );
+define( 'WAICB_VERSION', '1.1.0' );
 define( 'WAICB_FILE', __FILE__ );
 define( 'WAICB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WAICB_URL', plugin_dir_url( __FILE__ ) );
@@ -41,6 +42,8 @@ spl_autoload_register( function ( $class_name ) {
 		'WAICB_Api_Router'             => WAICB_DIR . 'includes/class-api-router.php',
 		'WAICB_Openai_Chat'            => WAICB_DIR . 'includes/class-openai-chat.php',
 		'WAICB_Openai_Assistant'       => WAICB_DIR . 'includes/class-openai-assistant.php',
+		'WAICB_Anthropic_Chat'         => WAICB_DIR . 'includes/class-anthropic-chat.php',
+		'WAICB_Updater'                => WAICB_DIR . 'includes/class-updater.php',
 		'WAICB_Rest_Api'               => WAICB_DIR . 'includes/class-rest-api.php',
 		'WAICB_Admin_Settings'         => WAICB_DIR . 'includes/class-admin-settings.php',
 		'WAICB_Admin_Conversations'    => WAICB_DIR . 'includes/class-admin-conversations.php',
@@ -76,4 +79,10 @@ register_deactivation_hook( __FILE__, function () {
 // ── Chargement ────────────────────────────────────────────────────────────────
 add_action( 'plugins_loaded', function () {
 	WAICB_Plugin_Core::get_instance()->init();
+
+	// Self-hosted update checker (GitHub Releases). Only needed where WP checks
+	// for updates: the admin and cron.
+	if ( is_admin() || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
+		( new WAICB_Updater() )->init();
+	}
 } );

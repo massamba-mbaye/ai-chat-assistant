@@ -6,7 +6,7 @@
 [![WordPress](https://img.shields.io/badge/WordPress-6.0%E2%80%93latest-21759b.svg)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/PHP-7.4%E2%80%938.3-777bb4.svg)](https://php.net)
 
-> Add an OpenAI-powered chatbot to any WordPress site — floating bubble or inline shortcode, with full admin dashboard, conversation history, and cost tracking.
+> Add an OpenAI- or Claude-powered chatbot to any WordPress site — floating bubble or inline shortcode, with a full admin dashboard and conversation history.
 
 **Plugin homepage:** [im-mass.com/plugins/ai-chat-assistant](https://www.im-mass.com/plugins/ai-chat-assistant)
 
@@ -14,15 +14,17 @@
 
 ## Features
 
-- **Two OpenAI engines** in one plugin:
-  - **Chat Completions** (`/v1/chat/completions`) — fast, flexible, supports `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo`
-  - **Assistants API** (`/v1/assistants` + threads) — advanced mode with persistent memory on OpenAI's side
+- **Two AI providers** in one plugin, switchable from the settings page:
+  - **OpenAI** — Chat Completions (`/v1/chat/completions`, supports `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo`) and Assistants API (`/v1/assistants` + threads, persistent memory on OpenAI's side)
+  - **Claude (Anthropic)** — Messages API (`/v1/messages`, supports `claude-haiku-4-5`, `claude-sonnet-4-6`, `claude-opus-4-8`)
+- **Separate, encrypted API key per provider**
 - **Floating chat bubble** with configurable position, color, and title
 - **`[ai_chatbot]` shortcode** for inline embedding (Elementor, Divi, Gutenberg compatible)
 - **Per-visitor conversation history** tracked via UUID cookie
-- **AES-256-CBC encryption** for the API key and system prompt
-- **Admin dashboard** : settings, conversation viewer, API logs with cost tracking
+- **AES-256-CBC encryption** for each API key and the system prompt
+- **Admin dashboard** : settings, conversation viewer, API logs (model + token usage)
 - **Rate limiting** (20 requests/minute per IP) via WordPress transients
+- **Automatic updates** from GitHub Releases
 - **Multisite compatible**
 - **Zero Composer dependencies** — native PHP and WordPress Core only
 
@@ -32,7 +34,10 @@
 |---|---|---|
 | WordPress | 6.0 | latest |
 | PHP | 7.4 | 8.3 |
-| OpenAI API key | required | — |
+| OpenAI API key ([platform.openai.com](https://platform.openai.com)) | for OpenAI provider | — |
+| Claude API key ([console.anthropic.com](https://console.anthropic.com)) | for Claude provider | — |
+
+At least one provider key is required. The Anthropic API is billed separately from a Claude.ai subscription and requires prepaid credits.
 
 Compatibility verified automatically via GitHub Actions on **19 environments** (WP 6.0 / 6.4 / 6.5 / 6.6 / latest × PHP 7.4 / 8.0 / 8.1 / 8.2).
 
@@ -71,10 +76,15 @@ Works in posts, pages, widgets, Elementor text blocks, Divi modules, Gutenberg b
 
 ## Security
 
-- The OpenAI API key is **encrypted at rest** using AES-256-CBC with a key derived from the WordPress `AUTH_KEY` constant.
+- Each API key is **encrypted at rest** using AES-256-CBC with a key derived from the WordPress `AUTH_KEY` constant.
 - All AJAX endpoints are protected by **WordPress nonces**.
-- **Rate limiting** (20 req/min per IP) prevents abuse.
+- **Rate limiting** (20 req/min per IP) prevents abuse. The client IP is taken from the direct connection (`REMOTE_ADDR`) by default; behind a trusted reverse proxy / CDN, opt into forwarded-for headers via the `waicb_trust_proxy_headers` filter.
+- The frontend Markdown renderer sanitizes links and only allows trusted (Google Maps) iframes, rebuilt from a clean template.
 - No third-party libraries → reduced supply-chain surface.
+
+## Updates
+
+The plugin checks **GitHub Releases** for new versions and shows updates in the WordPress admin like any other plugin. Each release attaches an `ai-chat-assistant.zip` asset. Note: the very first upgrade onto a release that includes the updater must be installed manually; subsequent updates are automatic.
 
 ## Development
 
