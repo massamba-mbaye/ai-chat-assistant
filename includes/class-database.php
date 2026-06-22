@@ -26,11 +26,6 @@ class WAICB_Database {
 		global $wpdb;
 
 		$charset_collate = $wpdb->get_charset_collate();
-		$installed_ver   = get_option( 'waicb_db_version', '0' );
-
-		if ( version_compare( $installed_ver, WAICB_DB_VERSION, '>=' ) ) {
-			return;
-		}
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
@@ -78,6 +73,41 @@ class WAICB_Database {
 		dbDelta( $sql_logs );
 
 		update_option( 'waicb_db_version', WAICB_DB_VERSION );
+	}
+
+	/**
+	 * Ensure the schema is present and up to date.
+	 *
+	 * Runs cheaply on every admin load: it only triggers the (idempotent)
+	 * installer when the stored DB version is behind OR the tables are missing.
+	 * This guarantees tables exist after a plugin update — the activation hook
+	 * does NOT fire on update, so relying on it alone leaves updated sites
+	 * without tables if they were ever dropped.
+	 *
+	 * @return void
+	 */
+	public static function maybe_upgrade() {
+		$up_to_date = version_compare( get_option( 'waicb_db_version', '0' ), WAICB_DB_VERSION, '>=' );
+
+		if ( $up_to_date && self::tables_exist() ) {
+			return;
+		}
+
+		self::install();
+	}
+
+	/**
+	 * Whether the plugin's tables exist.
+	 *
+	 * @return bool
+	 */
+	private static function tables_exist() {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'aichat_sessions';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 	}
 
 	// ── Sessions ──────────────────────────────────────────────────────────────
@@ -366,6 +396,21 @@ class WAICB_Database {
 			ARRAY_A
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_field_in
+
+		// get_row() returns null when the table is empty/missing — normalise so
+		// callers can always read the keys without warnings.
+		if ( ! is_array( $totals ) ) {
+			$totals = array();
+		}
+		$totals = array_merge(
+			array(
+				'prompt_tokens'     => 0,
+				'completion_tokens' => 0,
+				'total_tokens'      => 0,
+				'cost_usd'          => 0,
+			),
+			$totals
+		);
 
 		return array(
 			'rows'   => $rows ? $rows : array(),

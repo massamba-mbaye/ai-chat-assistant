@@ -3,7 +3,7 @@ Contributors:      massambambaye
 Tags:              chatbot, openai, claude, anthropic, ai
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.1.1
+Stable tag:        1.1.2
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -77,6 +77,10 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 
 == Changelog ==
 
+= 1.1.2 =
+* Fix: database tables are now self-healing — they are (re)created automatically on update if missing, instead of only on activation. Fixes empty Conversations/Logs pages and lost chat history after an in-place update.
+* Fix: "Trying to access array offset on null" warning on the Logs page when no logs exist yet.
+
 = 1.1.1 =
 * Fix: "Nonce invalide" error when sending a message while logged in — the chat request now authenticates the cookie session via the WordPress REST nonce (X-WP-Nonce).
 * UX: the settings page now shows only the active provider's options (OpenAI or Claude), and the OpenAI engine reveals either Chat Completion or Assistants API fields. Shared generation settings (system prompt, max tokens, history) are grouped separately.
@@ -94,6 +98,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.2 =
+Fixes missing Conversations/Logs tables after an update and a PHP warning on the Logs page.
 
 = 1.1.1 =
 Fixes the "Nonce invalide" error for logged-in users and streamlines the settings page per provider.

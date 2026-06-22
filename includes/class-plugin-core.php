@@ -68,6 +68,10 @@ class WAICB_Plugin_Core {
 	 * @return void
 	 */
 	private function init_admin() {
+		// Ensure the schema exists / is current (the activation hook does not
+		// fire on plugin update, so self-heal missing tables here).
+		add_action( 'admin_init', array( 'WAICB_Database', 'maybe_upgrade' ) );
+
 		$settings      = new WAICB_Admin_Settings();
 		$conversations = new WAICB_Admin_Conversations();
 		$logs          = new WAICB_Admin_Logs();
