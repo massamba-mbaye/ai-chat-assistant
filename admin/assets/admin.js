@@ -1,8 +1,7 @@
 /**
- * WordPress AI Chatbot — Admin JS.
+ * AI Chat Assistant — Admin JS.
  *
- * Handles:
- * - "Test API connection" buttons (OpenAI + Claude)
+ * - "Test connection" button (Jokko AI Cloud)
  * - Bubble icon media uploader
  * - Display rules show/hide
  * - "Clear conversations" confirmation
@@ -10,15 +9,11 @@
 ( function () {
     'use strict';
 
-    // ── Test API connection (OpenAI + Claude) ────────────────────────────────
-    function wireTestButton( btnId, resultId, keyFieldId, urlFieldId ) {
-        var testBtn    = document.getElementById( btnId );
-        var testResult = document.getElementById( resultId );
+    // ── Test Cloud connection ────────────────────────────────────────────────
+    var testBtn    = document.getElementById( 'waicb-test-cloud' );
+    var testResult = document.getElementById( 'waicb-test-cloud-result' );
 
-        if ( ! testBtn || ! testResult ) {
-            return;
-        }
-
+    if ( testBtn && testResult ) {
         testBtn.addEventListener( 'click', function () {
             testResult.textContent = waicbAdmin.i18n.testing;
             testResult.className    = '';
@@ -26,22 +21,14 @@
 
             var formData = new FormData();
             formData.append( 'action', 'waicb_test_api' );
-            formData.append( 'nonce',  waicbAdmin.nonce );
-            formData.append( 'provider', testBtn.getAttribute( 'data-provider' ) || 'openai' );
+            formData.append( 'nonce', waicbAdmin.nonce );
+            formData.append( 'provider', 'cloud' );
 
             // Send the key from the field if it has been modified (not the masked placeholder).
-            var apiKeyField = document.getElementById( keyFieldId );
-            var apiKeyValue = apiKeyField ? apiKeyField.value : '';
-            if ( apiKeyValue && apiKeyValue.indexOf( '•' ) === -1 && apiKeyValue.indexOf( '****' ) === -1 ) {
-                formData.append( 'api_key', apiKeyValue );
-            }
-
-            // Cloud provider also needs the proxy URL.
-            if ( urlFieldId ) {
-                var urlField = document.getElementById( urlFieldId );
-                if ( urlField && urlField.value ) {
-                    formData.append( 'cloud_url', urlField.value );
-                }
+            var keyField = document.getElementById( 'waicb_cloud_key' );
+            var keyValue = keyField ? keyField.value : '';
+            if ( keyValue && keyValue.indexOf( '•' ) === -1 && keyValue.indexOf( '****' ) === -1 ) {
+                formData.append( 'api_key', keyValue );
             }
 
             fetch( waicbAdmin.ajaxUrl, {
@@ -68,14 +55,10 @@
         } );
     }
 
-    wireTestButton( 'waicb-test-api', 'waicb-test-result', 'waicb_api_key' );
-    wireTestButton( 'waicb-test-claude', 'waicb-test-claude-result', 'waicb_claude_api_key' );
-    wireTestButton( 'waicb-test-cloud', 'waicb-test-cloud-result', 'waicb_cloud_key', 'waicb_cloud_url' );
-
     // ── Bubble icon media uploader ───────────────────────────────────────────
-    var uploadBtn  = document.getElementById( 'waicb-upload-icon' );
-    var removeBtn  = document.getElementById( 'waicb-remove-icon' );
-    var iconInput  = document.getElementById( 'waicb_bubble_icon' );
+    var uploadBtn   = document.getElementById( 'waicb-upload-icon' );
+    var removeBtn   = document.getElementById( 'waicb-remove-icon' );
+    var iconInput   = document.getElementById( 'waicb_bubble_icon' );
     var iconPreview = document.getElementById( 'waicb-icon-preview' );
 
     if ( uploadBtn && typeof wp !== 'undefined' && wp.media ) {
@@ -116,37 +99,6 @@
                 removeBtn.style.display   = 'none';
             } );
         }
-    }
-
-    // ── Provider sections: show only the active provider ─────────────────────
-    var providerSelect = document.getElementById( 'waicb_provider' );
-
-    function toggleProviderSections() {
-        var active = providerSelect ? providerSelect.value : 'openai';
-        document.querySelectorAll( '[data-provider-section]' ).forEach( function ( el ) {
-            el.style.display = ( el.getAttribute( 'data-provider-section' ) === active ) ? '' : 'none';
-        } );
-    }
-
-    if ( providerSelect ) {
-        providerSelect.addEventListener( 'change', toggleProviderSections );
-        toggleProviderSections();
-    }
-
-    // ── OpenAI engine: show Chat Completion vs Assistants API ────────────────
-    var modeRadios = document.querySelectorAll( 'input[name="waicb_mode"]' );
-
-    function toggleModeSections() {
-        var active = 'chat';
-        modeRadios.forEach( function ( r ) { if ( r.checked ) { active = r.value; } } );
-        document.querySelectorAll( '[data-mode-section]' ).forEach( function ( el ) {
-            el.style.display = ( el.getAttribute( 'data-mode-section' ) === active ) ? '' : 'none';
-        } );
-    }
-
-    if ( modeRadios.length ) {
-        modeRadios.forEach( function ( r ) { r.addEventListener( 'change', toggleModeSections ); } );
-        toggleModeSections();
     }
 
     // ── Display rules: show/hide page list ───────────────────────────────────

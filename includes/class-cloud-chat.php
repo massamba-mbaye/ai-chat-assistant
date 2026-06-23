@@ -24,15 +24,20 @@ class WAICB_Cloud_Chat {
 	/** @var string Clé de compte du SaaS. */
 	private $account_key;
 
+	/** @var string Instructions (persona) propres au site, transmises au SaaS. */
+	private $instructions;
+
 	/**
 	 * Constructor.
 	 *
-	 * @param string $endpoint    URL du proxy (…/api/chat.php).
-	 * @param string $account_key Clé de compte du SaaS.
+	 * @param string $endpoint     URL du proxy (…/api/chat.php).
+	 * @param string $account_key  Clé de compte du SaaS.
+	 * @param string $instructions Instructions/persona du site (optionnel).
 	 */
-	public function __construct( $endpoint, $account_key ) {
-		$this->endpoint    = $endpoint;
-		$this->account_key = $account_key;
+	public function __construct( $endpoint, $account_key, $instructions = '' ) {
+		$this->endpoint     = $endpoint;
+		$this->account_key  = $account_key;
+		$this->instructions = $instructions;
 	}
 
 	/**
@@ -45,10 +50,11 @@ class WAICB_Cloud_Chat {
 	 */
 	public function chat( $message, $history ) {
 		$payload = array(
-			'account_key' => $this->account_key,
-			'message'     => $message,
-			'history'     => $this->normalize_history( $history ),
-			'site_url'    => home_url(),
+			'account_key'  => $this->account_key,
+			'message'      => $message,
+			'history'      => $this->normalize_history( $history ),
+			'instructions' => $this->instructions,
+			'site_url'     => home_url(),
 		);
 
 		$response = wp_remote_post(

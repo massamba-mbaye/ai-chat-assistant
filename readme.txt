@@ -1,34 +1,31 @@
 === AI Chat Assistant ===
 Contributors:      massambambaye
-Tags:              chatbot, openai, claude, anthropic, ai
+Tags:              chatbot, ai, assistant, jokko, support
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.2.0
+Stable tag:        1.3.0
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-Add an OpenAI- or Claude-powered chatbot to any WordPress site with a floating bubble or inline shortcode.
+Add an AI chatbot to any WordPress site, powered by the Jokko AI Cloud service — no AI API key to manage.
 
 == Description ==
 
-AI Chat Assistant integrates an AI chatbot directly into your WordPress site, powered by **OpenAI** or **Anthropic Claude**. Pick your provider, configure everything from the admin dashboard, and go live in minutes.
+AI Chat Assistant adds an AI chatbot to your WordPress site, powered by the **Jokko AI** Cloud service. You don't manage any OpenAI or Anthropic API key: create a Jokko AI account, buy prepaid credits (1 credit = 1 message), paste your account key, and go live in minutes.
 
-Two providers:
-
-* **OpenAI** — Chat Completions (`/v1/chat/completions`, fast and flexible) and Assistants API (`/v1/assistants` + threads, persistent memory on the OpenAI side).
-* **Claude (Anthropic)** — Messages API (`/v1/messages`) with models such as Claude Haiku 4.5, Sonnet 4.6, and Opus 4.8.
-
-Configure a separate API key for each provider and switch the active provider at any time.
+How it works: the plugin sends each message to the Jokko AI service, which holds the AI keys server-side, checks your credit balance, calls the AI model, and returns the answer. You only ever paste an **account key**.
 
 = Main Features =
 
-* Two AI providers (OpenAI and Claude) selectable from the settings page
+* Powered by the Jokko AI Cloud service — no OpenAI/Anthropic key to handle
+* Prepaid credits (1 credit = 1 message) — top up from the Jokko AI dashboard
+* Per-site assistant instructions (persona/tone) sent securely to the service
 * Floating chat bubble with configurable position, color, and title
 * `[ai_chatbot]` shortcode for inline embedding anywhere
 * Per-visitor conversation history tracked via UUID cookie
-* AES-256-CBC encryption for each API key and the system prompt
-* Full admin dashboard: settings, conversation list, API logs (model + token usage)
+* AES-256-CBC encryption for the account key
+* Admin dashboard: settings, conversation list, message logs
 * Rate limiting (20 requests/minute per IP) via WordPress transients
 * Automatic updates from GitHub Releases
 * Multisite compatible
@@ -38,27 +35,26 @@ Configure a separate API key for each provider and switch the active provider at
 
 1. Upload the `ai-chat-assistant` folder to `/wp-content/plugins/`.
 2. Activate the plugin from the **Plugins** menu in WordPress.
-3. Go to **AI Chatbot > Settings**, choose your provider, and enter the matching API key (OpenAI and/or Claude).
-4. Enable the chatbot and configure the widget to your preferences.
+3. Create an account and get your key at https://jokko-ai.im-mass.com/dashboard.php
+4. Go to **AI Chatbot > Settings**, paste your account key, write your assistant instructions, and enable the chatbot.
 
 == Frequently Asked Questions ==
 
-= Which providers and models are supported? =
+= Do I need an OpenAI or Anthropic API key? =
 
-OpenAI — Chat Completions: `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo`; Assistants API: any assistant created in your OpenAI account.
-Claude (Anthropic) — Messages API: `claude-haiku-4-5`, `claude-sonnet-4-6`, `claude-opus-4-8`.
+No. The Jokko AI service holds the AI keys for you. You only create a Jokko AI account, buy credits, and paste your account key into the plugin.
 
-= Where do I get the API keys? =
+= How is it billed? =
 
-OpenAI keys: platform.openai.com (API keys). Claude keys: console.anthropic.com (Settings > API Keys); the Anthropic API is billed separately from a Claude.ai subscription and requires prepaid credits.
+Prepaid credits: 1 credit = 1 message. You top up from the Jokko AI dashboard (Wave, Orange Money, Free Money, or card). When credits run out, the chatbot asks you to recharge.
 
 = Does the shortcode work with Elementor, Divi, or Gutenberg? =
 
 Yes. Use `[ai_chatbot]` in any text block or shortcode widget.
 
-= Is the API key stored securely? =
+= Is the account key stored securely? =
 
-Yes. Each key is encrypted in the database using AES-256-CBC with a key derived from the WordPress `AUTH_KEY` constant.
+Yes. The Jokko AI account key is encrypted in the database using AES-256-CBC with a key derived from the WordPress `AUTH_KEY` constant.
 
 = My site is behind Cloudflare or a load balancer — how is the rate limit counted? =
 
@@ -76,6 +72,11 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 4. API logs (model + token usage)
 
 == Changelog ==
+
+= 1.3.0 =
+* Change: the plugin is now powered exclusively by the Jokko AI Cloud service. The OpenAI and Claude "bring-your-own-key" providers have been removed — you only paste a Jokko AI account key (no AI API key to manage).
+* New: per-site "Assistant instructions" field (persona/tone) sent to the service with each message.
+* Simplified settings: provider selector, AI keys, model/temperature/mode/Assistants and token settings removed.
 
 = 1.2.0 =
 * New: "Cloud" provider — connect the chatbot to a prepaid credits SaaS (e.g. Jokko AI) instead of your own OpenAI/Anthropic key. The site sends only an account key; the SaaS holds the AI keys, checks credits, and bills 1 credit per message.
@@ -102,6 +103,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+Major change: the chatbot now runs only through the Jokko AI Cloud service. After updating, go to AI Chatbot > Settings and paste your Jokko AI account key. OpenAI/Claude keys are no longer used.
 
 = 1.1.2 =
 Fixes missing Conversations/Logs tables after an update and a PHP warning on the Logs page.

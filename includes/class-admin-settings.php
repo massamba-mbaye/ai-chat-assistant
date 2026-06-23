@@ -109,74 +109,21 @@ class WAICB_Admin_Settings {
 
 		check_admin_referer( 'waicb_settings_save' );
 
-		// Provider (openai | claude | cloud).
-		$provider_in = isset( $_POST['waicb_provider'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_provider'] ) ) : 'openai';
-		$provider    = in_array( $provider_in, array( 'openai', 'claude', 'cloud' ), true ) ? $provider_in : 'openai';
-		update_option( 'waicb_provider', $provider );
+		// Fournisseur : toujours « cloud » (service Jokko AI).
+		update_option( 'waicb_provider', 'cloud' );
 
-		// Cloud (SaaS prépayé) — endpoint + clé de compte.
-		$cloud_url = isset( $_POST['waicb_cloud_url'] ) ? esc_url_raw( wp_unslash( $_POST['waicb_cloud_url'] ) ) : '';
-		update_option( 'waicb_cloud_url', $cloud_url );
-
+		// Clé de compte Cloud — mise à jour uniquement si une nouvelle valeur est saisie.
 		$submitted_cloud_key = isset( $_POST['waicb_cloud_key'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_cloud_key'] ) ) : '';
 		if ( '' !== $submitted_cloud_key && strpos( $submitted_cloud_key, '****' ) === false ) {
 			update_option( 'waicb_cloud_key', WAICB_Crypto::encrypt( $submitted_cloud_key ) );
 		}
 
-		// OpenAI API Key — only update if a new value was submitted.
-		$submitted_key = isset( $_POST['waicb_api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_api_key'] ) ) : '';
-		if ( '' !== $submitted_key && strpos( $submitted_key, '****' ) === false ) {
-			update_option( 'waicb_api_key', WAICB_Crypto::encrypt( $submitted_key ) );
+		// Instructions (persona) du site — texte simple, plafonné, transmis au SaaS.
+		$instructions = isset( $_POST['waicb_instructions'] ) ? sanitize_textarea_field( wp_unslash( $_POST['waicb_instructions'] ) ) : '';
+		if ( mb_strlen( $instructions ) > 2000 ) {
+			$instructions = mb_substr( $instructions, 0, 2000 );
 		}
-
-		// Claude (Anthropic) API Key — only update if a new value was submitted.
-		$submitted_claude_key = isset( $_POST['waicb_claude_api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_claude_api_key'] ) ) : '';
-		if ( '' !== $submitted_claude_key && strpos( $submitted_claude_key, '****' ) === false ) {
-			update_option( 'waicb_claude_api_key', WAICB_Crypto::encrypt( $submitted_claude_key ) );
-		}
-
-		// Claude model.
-		$allowed_claude_models = array( 'claude-opus-4-8', 'claude-sonnet-4-6', 'claude-haiku-4-5' );
-		$claude_model          = isset( $_POST['waicb_claude_model'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_claude_model'] ) ) : 'claude-sonnet-4-6';
-		if ( ! in_array( $claude_model, $allowed_claude_models, true ) ) {
-			$claude_model = 'claude-sonnet-4-6';
-		}
-		update_option( 'waicb_claude_model', $claude_model );
-
-		// Mode.
-		$mode = isset( $_POST['waicb_mode'] ) && 'assistant' === $_POST['waicb_mode'] ? 'assistant' : 'chat';
-		update_option( 'waicb_mode', $mode );
-
-		// Model.
-		$allowed_models = array( 'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo' );
-		$model          = isset( $_POST['waicb_model'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_model'] ) ) : 'gpt-4o-mini';
-		if ( ! in_array( $model, $allowed_models, true ) ) {
-			$model = 'gpt-4o-mini';
-		}
-		update_option( 'waicb_model', $model );
-
-		// System prompt — encrypted.
-		$system_prompt = isset( $_POST['waicb_system_prompt'] ) ? sanitize_textarea_field( wp_unslash( $_POST['waicb_system_prompt'] ) ) : '';
-		update_option( 'waicb_system_prompt', WAICB_Crypto::encrypt( $system_prompt ) );
-
-		// Temperature.
-		$temperature = isset( $_POST['waicb_temperature'] ) ? (float) $_POST['waicb_temperature'] : 0.7;
-		$temperature = max( 0.0, min( 2.0, $temperature ) );
-		update_option( 'waicb_temperature', $temperature );
-
-		// Max tokens.
-		$max_tokens = isset( $_POST['waicb_max_tokens'] ) ? (int) $_POST['waicb_max_tokens'] : 1024;
-		$max_tokens = max( 1, min( 4096, $max_tokens ) );
-		update_option( 'waicb_max_tokens', $max_tokens );
-
-		// History limit.
-		$history_limit = isset( $_POST['waicb_history_limit'] ) ? (int) $_POST['waicb_history_limit'] : 20;
-		$history_limit = max( 1, min( 100, $history_limit ) );
-		update_option( 'waicb_history_limit', $history_limit );
-
-		// Assistant ID.
-		$assistant_id = isset( $_POST['waicb_assistant_id'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_assistant_id'] ) ) : '';
-		update_option( 'waicb_assistant_id', $assistant_id );
+		update_option( 'waicb_instructions', $instructions );
 
 		// Widget options.
 		$position = isset( $_POST['waicb_widget_position'] ) && 'bottom-left' === $_POST['waicb_widget_position'] ? 'bottom-left' : 'bottom-right';

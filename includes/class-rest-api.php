@@ -104,7 +104,7 @@ class WAICB_Rest_Api {
 			// 9. Insert log. The engine reports the actual model used.
 			$model = isset( $result['model'] ) && '' !== $result['model']
 				? $result['model']
-				: get_option( 'waicb_model', 'gpt-4o-mini' );
+				: 'cloud';
 
 			WAICB_Database::insert_log(
 				$session_id,
@@ -146,7 +146,11 @@ class WAICB_Rest_Api {
 	}
 
 	/**
-	 * AJAX handler — test the OpenAI or Claude API connection from the admin.
+	 * AJAX handler — test the Jokko AI Cloud connection from the admin.
+	 *
+	 * Sends an empty message: the proxy authenticates the account key first,
+	 * then rejects the empty message (HTTP 400) *before* debiting a credit.
+	 * So 200/400 ⇒ key valid, 401 ⇒ invalid key, 403 ⇒ suspended/domain.
 	 *
 	 * @return void
 	 */
@@ -158,80 +162,16 @@ class WAICB_Rest_Api {
 			return;
 		}
 
-		$provider_in = isset( $_POST['provider'] ) ? sanitize_text_field( wp_unslash( $_POST['provider'] ) ) : 'openai';
-		$provider    = in_array( $provider_in, array( 'openai', 'claude', 'cloud' ), true ) ? $provider_in : 'openai';
 		$raw_key     = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
-
-		if ( 'cloud' === $provider ) {
-			$this->test_cloud_connection( $raw_key );
-			return;
-		}
-
-		if ( 'claude' === $provider ) {
-			$model = get_option( 'waicb_claude_model', 'claude-sonnet-4-6' );
-			$this->test_connection(
-				array(
-					'key_option'  => 'waicb_claude_api_key',
-					'no_key_msg'  => __( 'Clé API Claude non configurée.', 'ai-chat-assistant' ),
-					'success_msg' => __( 'Connexion Claude réussie ✓', 'ai-chat-assistant' ),
-					'url'         => 'https://api.anthropic.com/v1/messages',
-					'headers'     => array( 'anthropic-version' => '2023-06-01' ),
-					'auth_header' => 'x-api-key',
-					'auth_prefix' => '',
-					'body'        => array(
-						'model'      => $model,
-						'max_tokens' => 5,
-						'messages'   => array( array( 'role' => 'user', 'content' => 'Hi' ) ),
-					),
-				),
-				$raw_key
-			);
-			return;
-		}
-
-		$this->test_connection(
-			array(
-				'key_option'  => 'waicb_api_key',
-				'no_key_msg'  => __( 'Clé API OpenAI non configurée.', 'ai-chat-assistant' ),
-				'success_msg' => __( 'Connexion OpenAI réussie ✓', 'ai-chat-assistant' ),
-				'url'         => 'https://api.openai.com/v1/chat/completions',
-				'headers'     => array(),
-				'auth_header' => 'Authorization',
-				'auth_prefix' => 'Bearer ',
-				'body'        => array(
-					'model'      => 'gpt-4o-mini',
-					'messages'   => array( array( 'role' => 'user', 'content' => 'Hi' ) ),
-					'max_tokens' => 5,
-				),
-			),
-			$raw_key
-		);
-	}
-
-	/**
-	 * Test the Cloud (SaaS) connection without consuming a credit.
-	 *
-	 * Sends an empty message: the proxy authenticates the account key first,
-	 * then rejects the empty message (HTTP 400) *before* debiting a credit.
-	 * So 200/400 ⇒ key valid, 401 ⇒ invalid key, 403 ⇒ suspended/domain.
-	 *
-	 * @param string $raw_key Key submitted from the form (may be empty → use stored).
-	 * @return void
-	 */
-	private function test_cloud_connection( $raw_key ) {
-		$endpoint = isset( $_POST['cloud_url'] ) ? esc_url_raw( wp_unslash( $_POST['cloud_url'] ) ) : '';
-		if ( '' === $endpoint ) {
-			$endpoint = get_option( 'waicb_cloud_url', '' );
-		}
 		$account_key = '' !== $raw_key ? $raw_key : WAICB_Crypto::decrypt( get_option( 'waicb_cloud_key', '' ) );
 
-		if ( '' === $endpoint || '' === $account_key ) {
-			wp_send_json_error( array( 'message' => __( 'URL ou clé de compte manquante. Enregistrez d\'abord les réglages.', 'ai-chat-assistant' ) ) );
+		if ( '' === $account_key ) {
+			wp_send_json_error( array( 'message' => __( 'Clé de compte manquante. Enregistrez d\'abord les réglages.', 'ai-chat-assistant' ) ) );
 			return;
 		}
 
 		$response = wp_remote_post(
-			$endpoint,
+			WAICB_CLOUD_URL,
 			array(
 				'timeout' => 15,
 				'headers' => array( 'Content-Type' => 'application/json' ),
@@ -254,61 +194,12 @@ class WAICB_Rest_Api {
 
 		// 200 (improbable avec message vide) ou 400 (« Message vide ») ⇒ la clé est valide.
 		if ( 200 === $code || 400 === $code ) {
-			wp_send_json_success( array( 'message' => __( 'Connexion Cloud réussie ✓ (clé valide)', 'ai-chat-assistant' ) ) );
+			wp_send_json_success( array( 'message' => __( 'Connexion réussie ✓ (clé valide)', 'ai-chat-assistant' ) ) );
 			return;
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $response ), true );
 		$err  = is_array( $data ) && isset( $data['error'] ) ? $data['error'] : 'HTTP ' . (int) $code;
-		wp_send_json_error( array( 'message' => $err ) );
-	}
-
-	/**
-	 * Generic connection tester for any provider.
-	 *
-	 * @param array  $config  {key_option, no_key_msg, success_msg, url, headers, auth_header, auth_prefix, body}.
-	 * @param string $raw_key Key submitted from the form (may be empty → use stored).
-	 * @return void
-	 */
-	private function test_connection( $config, $raw_key ) {
-		$api_key = '' !== $raw_key ? $raw_key : WAICB_Crypto::decrypt( get_option( $config['key_option'], '' ) );
-
-		if ( '' === $api_key ) {
-			wp_send_json_error( array( 'message' => $config['no_key_msg'] ) );
-			return;
-		}
-
-		$headers = array_merge(
-			$config['headers'],
-			array(
-				'Content-Type'           => 'application/json',
-				$config['auth_header'] => $config['auth_prefix'] . $api_key,
-			)
-		);
-
-		$response = wp_remote_post(
-			$config['url'],
-			array(
-				'timeout' => 15,
-				'headers' => $headers,
-				'body'    => wp_json_encode( $config['body'] ),
-			)
-		);
-
-		if ( is_wp_error( $response ) ) {
-			wp_send_json_error( array( 'message' => $response->get_error_message() ) );
-			return;
-		}
-
-		$code = wp_remote_retrieve_response_code( $response );
-
-		if ( 200 === $code ) {
-			wp_send_json_success( array( 'message' => $config['success_msg'] ) );
-			return;
-		}
-
-		$data = json_decode( wp_remote_retrieve_body( $response ), true );
-		$err  = isset( $data['error']['message'] ) ? $data['error']['message'] : 'HTTP ' . $code;
 		wp_send_json_error( array( 'message' => $err ) );
 	}
 }

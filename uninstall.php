@@ -19,6 +19,9 @@ $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}aichat_sessions" );  // phpcs
 // Remove all plugin options.
 $waicb_options = array(
 	'waicb_provider',
+	'waicb_cloud_key',
+	'waicb_cloud_url',
+	'waicb_instructions',
 	'waicb_api_key',
 	'waicb_claude_api_key',
 	'waicb_claude_model',
