@@ -158,8 +158,14 @@ class WAICB_Rest_Api {
 			return;
 		}
 
-		$provider = isset( $_POST['provider'] ) && 'claude' === $_POST['provider'] ? 'claude' : 'openai';
-		$raw_key  = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
+		$provider_in = isset( $_POST['provider'] ) ? sanitize_text_field( wp_unslash( $_POST['provider'] ) ) : 'openai';
+		$provider    = in_array( $provider_in, array( 'openai', 'claude', 'cloud' ), true ) ? $provider_in : 'openai';
+		$raw_key     = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
+
+		if ( 'cloud' === $provider ) {
+			$this->test_cloud_connection( $raw_key );
+			return;
+		}
 
 		if ( 'claude' === $provider ) {
 			$model = get_option( 'waicb_claude_model', 'claude-sonnet-4-6' );
@@ -200,6 +206,61 @@ class WAICB_Rest_Api {
 			),
 			$raw_key
 		);
+	}
+
+	/**
+	 * Test the Cloud (SaaS) connection without consuming a credit.
+	 *
+	 * Sends an empty message: the proxy authenticates the account key first,
+	 * then rejects the empty message (HTTP 400) *before* debiting a credit.
+	 * So 200/400 ⇒ key valid, 401 ⇒ invalid key, 403 ⇒ suspended/domain.
+	 *
+	 * @param string $raw_key Key submitted from the form (may be empty → use stored).
+	 * @return void
+	 */
+	private function test_cloud_connection( $raw_key ) {
+		$endpoint = isset( $_POST['cloud_url'] ) ? esc_url_raw( wp_unslash( $_POST['cloud_url'] ) ) : '';
+		if ( '' === $endpoint ) {
+			$endpoint = get_option( 'waicb_cloud_url', '' );
+		}
+		$account_key = '' !== $raw_key ? $raw_key : WAICB_Crypto::decrypt( get_option( 'waicb_cloud_key', '' ) );
+
+		if ( '' === $endpoint || '' === $account_key ) {
+			wp_send_json_error( array( 'message' => __( 'URL ou clé de compte manquante. Enregistrez d\'abord les réglages.', 'ai-chat-assistant' ) ) );
+			return;
+		}
+
+		$response = wp_remote_post(
+			$endpoint,
+			array(
+				'timeout' => 15,
+				'headers' => array( 'Content-Type' => 'application/json' ),
+				'body'    => wp_json_encode(
+					array(
+						'account_key' => $account_key,
+						'message'     => '',
+						'site_url'    => home_url(),
+					)
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			wp_send_json_error( array( 'message' => $response->get_error_message() ) );
+			return;
+		}
+
+		$code = wp_remote_retrieve_response_code( $response );
+
+		// 200 (improbable avec message vide) ou 400 (« Message vide ») ⇒ la clé est valide.
+		if ( 200 === $code || 400 === $code ) {
+			wp_send_json_success( array( 'message' => __( 'Connexion Cloud réussie ✓ (clé valide)', 'ai-chat-assistant' ) ) );
+			return;
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+		$err  = is_array( $data ) && isset( $data['error'] ) ? $data['error'] : 'HTTP ' . (int) $code;
+		wp_send_json_error( array( 'message' => $err ) );
 	}
 
 	/**

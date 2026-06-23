@@ -30,6 +30,18 @@ class WAICB_Api_Router {
 	public static function dispatch( $message, $session_id, $history ) {
 		$provider = get_option( 'waicb_provider', 'openai' );
 
+		if ( 'cloud' === $provider ) {
+			$endpoint    = get_option( 'waicb_cloud_url', '' );
+			$account_key = WAICB_Crypto::decrypt( get_option( 'waicb_cloud_key', '' ) );
+
+			if ( '' === $endpoint || '' === $account_key ) {
+				throw new RuntimeException( esc_html__( 'Fournisseur Cloud non configuré (URL ou clé de compte manquante).', 'ai-chat-assistant' ) );
+			}
+
+			$engine = new WAICB_Cloud_Chat( $endpoint, $account_key );
+			return $engine->chat( $message, $history );
+		}
+
 		if ( 'claude' === $provider ) {
 			$api_key = WAICB_Crypto::decrypt( get_option( 'waicb_claude_api_key', '' ) );
 

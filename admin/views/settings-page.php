@@ -10,6 +10,8 @@ defined( 'ABSPATH' ) || exit;
 $waicb_provider        = get_option( 'waicb_provider', 'openai' );
 $waicb_has_api_key     = '' !== get_option( 'waicb_api_key', '' );
 $waicb_has_claude_key  = '' !== get_option( 'waicb_claude_api_key', '' );
+$waicb_has_cloud_key   = '' !== get_option( 'waicb_cloud_key', '' );
+$waicb_cloud_url       = get_option( 'waicb_cloud_url', '' );
 $waicb_claude_model    = get_option( 'waicb_claude_model', 'claude-sonnet-4-6' );
 $waicb_mode            = get_option( 'waicb_mode', 'chat' );
 $waicb_model           = get_option( 'waicb_model', 'gpt-4o-mini' );
@@ -54,11 +56,53 @@ $waicb_cleared = isset( $_GET['cleared'] ) && '1' === sanitize_key( $_GET['clear
 					<select id="waicb_provider" name="waicb_provider">
 						<option value="openai" <?php selected( $waicb_provider, 'openai' ); ?>>OpenAI (ChatGPT)</option>
 						<option value="claude" <?php selected( $waicb_provider, 'claude' ); ?>>Claude (Anthropic)</option>
+						<option value="cloud" <?php selected( $waicb_provider, 'cloud' ); ?>><?php esc_html_e( 'Cloud (crédits prépayés — sans clé IA)', 'ai-chat-assistant' ); ?></option>
 					</select>
 					<p class="description"><?php esc_html_e( 'Seuls les réglages du fournisseur sélectionné sont affichés et utilisés.', 'ai-chat-assistant' ); ?></p>
 				</td>
 			</tr>
 		</table>
+
+		<!-- ════════════ Cloud (SaaS prépayé) ════════════ -->
+		<div data-provider-section="cloud">
+
+			<h2><?php esc_html_e( 'Connexion Cloud (crédits prépayés)', 'ai-chat-assistant' ); ?></h2>
+			<p class="description" style="max-width:640px;">
+				<?php esc_html_e( 'Mode clé-en-main : aucune clé OpenAI/Anthropic à fournir. Vous achetez des crédits (1 crédit = 1 message) sur le service Cloud, qui appelle l\'IA pour vous. Collez ci-dessous l\'URL du proxy et votre clé de compte.', 'ai-chat-assistant' ); ?>
+			</p>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row">
+						<label for="waicb_cloud_url"><?php esc_html_e( 'URL du proxy', 'ai-chat-assistant' ); ?></label>
+					</th>
+					<td>
+						<input type="url" id="waicb_cloud_url" name="waicb_cloud_url" class="regular-text"
+						       value="<?php echo esc_attr( $waicb_cloud_url ); ?>"
+						       placeholder="https://votre-saas.com/api/chat.php">
+						<p class="description"><?php esc_html_e( 'Terminée par /api/chat.php.', 'ai-chat-assistant' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label for="waicb_cloud_key"><?php esc_html_e( 'Clé de compte', 'ai-chat-assistant' ); ?></label>
+					</th>
+					<td>
+						<input type="password" id="waicb_cloud_key" name="waicb_cloud_key" class="regular-text"
+						       value="<?php echo $waicb_has_cloud_key ? '****************' : ''; ?>"
+						       autocomplete="new-password" placeholder="aica_live_...">
+						<p class="description"><?php esc_html_e( 'Laissez vide pour conserver la valeur actuelle. Enregistrez avant de tester.', 'ai-chat-assistant' ); ?></p>
+						<button type="button" id="waicb-test-cloud" class="button button-secondary" data-provider="cloud" style="margin-top:6px;">
+							<?php esc_html_e( 'Tester la connexion Cloud', 'ai-chat-assistant' ); ?>
+						</button>
+						<span id="waicb-test-cloud-result" style="margin-left:10px;font-weight:600;"></span>
+					</td>
+				</tr>
+			</table>
+			<p class="description" style="max-width:640px;">
+				<?php esc_html_e( 'Les réglages de modèle, température et prompt système sont gérés côté service Cloud et n\'ont pas d\'effet ici.', 'ai-chat-assistant' ); ?>
+			</p>
+
+		</div><!-- /cloud -->
 
 		<!-- ════════════ OpenAI ════════════ -->
 		<div data-provider-section="openai">

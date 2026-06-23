@@ -3,7 +3,7 @@ Contributors:      massambambaye
 Tags:              chatbot, openai, claude, anthropic, ai
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.1.2
+Stable tag:        1.2.0
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -76,6 +76,10 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 4. API logs (model + token usage)
 
 == Changelog ==
+
+= 1.2.0 =
+* New: "Cloud" provider — connect the chatbot to a prepaid credits SaaS (e.g. Jokko AI) instead of your own OpenAI/Anthropic key. The site sends only an account key; the SaaS holds the AI keys, checks credits, and bills 1 credit per message.
+* New: settings section for the Cloud provider (proxy URL + account key) with a connection test that validates the key without consuming a credit.
 
 = 1.1.2 =
 * Fix: database tables are now self-healing — they are (re)created automatically on update if missing, instead of only on activation. Fixes empty Conversations/Logs pages and lost chat history after an in-place update.

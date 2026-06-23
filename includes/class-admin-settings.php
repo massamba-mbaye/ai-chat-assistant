@@ -109,9 +109,19 @@ class WAICB_Admin_Settings {
 
 		check_admin_referer( 'waicb_settings_save' );
 
-		// Provider (openai | claude).
-		$provider = isset( $_POST['waicb_provider'] ) && 'claude' === $_POST['waicb_provider'] ? 'claude' : 'openai';
+		// Provider (openai | claude | cloud).
+		$provider_in = isset( $_POST['waicb_provider'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_provider'] ) ) : 'openai';
+		$provider    = in_array( $provider_in, array( 'openai', 'claude', 'cloud' ), true ) ? $provider_in : 'openai';
 		update_option( 'waicb_provider', $provider );
+
+		// Cloud (SaaS prépayé) — endpoint + clé de compte.
+		$cloud_url = isset( $_POST['waicb_cloud_url'] ) ? esc_url_raw( wp_unslash( $_POST['waicb_cloud_url'] ) ) : '';
+		update_option( 'waicb_cloud_url', $cloud_url );
+
+		$submitted_cloud_key = isset( $_POST['waicb_cloud_key'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_cloud_key'] ) ) : '';
+		if ( '' !== $submitted_cloud_key && strpos( $submitted_cloud_key, '****' ) === false ) {
+			update_option( 'waicb_cloud_key', WAICB_Crypto::encrypt( $submitted_cloud_key ) );
+		}
 
 		// OpenAI API Key — only update if a new value was submitted.
 		$submitted_key = isset( $_POST['waicb_api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['waicb_api_key'] ) ) : '';

@@ -11,7 +11,7 @@
     'use strict';
 
     // ── Test API connection (OpenAI + Claude) ────────────────────────────────
-    function wireTestButton( btnId, resultId, keyFieldId ) {
+    function wireTestButton( btnId, resultId, keyFieldId, urlFieldId ) {
         var testBtn    = document.getElementById( btnId );
         var testResult = document.getElementById( resultId );
 
@@ -34,6 +34,14 @@
             var apiKeyValue = apiKeyField ? apiKeyField.value : '';
             if ( apiKeyValue && apiKeyValue.indexOf( '•' ) === -1 && apiKeyValue.indexOf( '****' ) === -1 ) {
                 formData.append( 'api_key', apiKeyValue );
+            }
+
+            // Cloud provider also needs the proxy URL.
+            if ( urlFieldId ) {
+                var urlField = document.getElementById( urlFieldId );
+                if ( urlField && urlField.value ) {
+                    formData.append( 'cloud_url', urlField.value );
+                }
             }
 
             fetch( waicbAdmin.ajaxUrl, {
@@ -62,6 +70,7 @@
 
     wireTestButton( 'waicb-test-api', 'waicb-test-result', 'waicb_api_key' );
     wireTestButton( 'waicb-test-claude', 'waicb-test-claude-result', 'waicb_claude_api_key' );
+    wireTestButton( 'waicb-test-cloud', 'waicb-test-cloud-result', 'waicb_cloud_key', 'waicb_cloud_url' );
 
     // ── Bubble icon media uploader ───────────────────────────────────────────
     var uploadBtn  = document.getElementById( 'waicb-upload-icon' );
