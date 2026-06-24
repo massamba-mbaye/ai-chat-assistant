@@ -3,7 +3,7 @@ Contributors:      massambambaye
 Tags:              chatbot, ai, assistant, jokko, support
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.3.0
+Stable tag:        1.3.1
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,6 +73,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 
 == Changelog ==
 
+= 1.3.1 =
+* New: contextual Jokko AI links in the settings — "Créer un compte" when no key is set, "Gérer mes crédits / Recharger" once connected (opens the Jokko AI dashboard).
+
 = 1.3.0 =
 * Change: the plugin is now powered exclusively by the Jokko AI Cloud service. The OpenAI and Claude "bring-your-own-key" providers have been removed — you only paste a Jokko AI account key (no AI API key to manage).
 * New: per-site "Assistant instructions" field (persona/tone) sent to the service with each message.
@@ -103,6 +106,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.3.1 =
+Adds quick links to create a Jokko AI account or recharge credits from the settings page.
 
 = 1.3.0 =
 Major change: the chatbot now runs only through the Jokko AI Cloud service. After updating, go to AI Chatbot > Settings and paste your Jokko AI account key. OpenAI/Claude keys are no longer used.

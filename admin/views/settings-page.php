@@ -59,6 +59,17 @@ $waicb_cleared = isset( $_GET['cleared'] ) && '1' === sanitize_key( $_GET['clear
 						<?php esc_html_e( 'Tester la connexion', 'ai-chat-assistant' ); ?>
 					</button>
 					<span id="waicb-test-cloud-result" style="margin-left:10px;font-weight:600;"></span>
+					<p style="margin:12px 0 0;">
+						<?php if ( $waicb_has_cloud_key ) : ?>
+							<a href="<?php echo esc_url( WAICB_CLOUD_DASHBOARD ); ?>" target="_blank" rel="noopener" class="button button-secondary">
+								<?php esc_html_e( 'Gérer mes crédits / Recharger', 'ai-chat-assistant' ); ?>
+							</a>
+						<?php else : ?>
+							<a href="<?php echo esc_url( WAICB_CLOUD_DASHBOARD . '?signup=1' ); ?>" target="_blank" rel="noopener" class="button button-primary">
+								<?php esc_html_e( 'Créer un compte Jokko AI (gratuit)', 'ai-chat-assistant' ); ?>
+							</a>
+						<?php endif; ?>
+					</p>
 				</td>
 			</tr>
 			<tr>
