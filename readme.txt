@@ -3,7 +3,7 @@ Contributors:      massambambaye
 Tags:              chatbot, ai, assistant, jokko, support
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.4.0
+Stable tag:        1.4.1
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,6 +73,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 
 == Changelog ==
 
+= 1.4.1 =
+* Improve: the "View details" popup on the Plugins page is now richer (Description, Installation, FAQ, full changelog, and metadata), sourced from readme.txt instead of the raw GitHub release notes.
+
 = 1.4.0 =
 * New: redesigned settings page with a guided onboarding (status banner + 4 steps: create account, connect key, personalize, activate) and tabbed secondary settings (Assistant, Apparence, Affichage, Avancé).
 * New: connection test now updates the status banner and step checkmarks instantly.
@@ -112,6 +115,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.4.1 =
+Richer plugin details popup on the Plugins page.
 
 = 1.4.0 =
 Redesigned, guided settings page. All your existing settings are preserved.

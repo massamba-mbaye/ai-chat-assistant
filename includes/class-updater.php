@@ -128,19 +128,150 @@ class WAICB_Updater {
 			return $result;
 		}
 
-		$changelog = isset( $release['body'] ) ? $release['body'] : '';
+		$readme   = $this->read_local_readme();
+		$sections = array();
+
+		foreach ( array(
+			'description'  => 'Description',
+			'installation' => 'Installation',
+			'faq'          => 'Frequently Asked Questions',
+		) as $key => $title ) {
+			$html = $this->readme_section( $readme, $title );
+			if ( '' !== $html ) {
+				$sections[ $key ] = $html;
+			}
+		}
+
+		$changelog = $this->readme_section( $readme, 'Changelog' );
+		if ( '' === $changelog ) {
+			$changelog = wp_kses_post( wpautop( isset( $release['body'] ) ? $release['body'] : '' ) );
+		}
+		$sections['changelog'] = $changelog;
 
 		return (object) array(
-			'name'          => 'AI Chat Assistant',
-			'slug'          => $this->slug,
-			'version'       => ltrim( $release['tag_name'], 'vV' ),
-			'author'        => '<a href="https://www.im-mass.com">Massamba MBAYE</a>',
-			'homepage'      => isset( $release['html_url'] ) ? $release['html_url'] : '',
-			'download_link' => $this->get_package_url( $release ),
-			'sections'      => array(
-				'changelog' => wp_kses_post( wpautop( $changelog ) ),
-			),
+			'name'           => 'AI Chat Assistant',
+			'slug'           => $this->slug,
+			'version'        => ltrim( $release['tag_name'], 'vV' ),
+			'author'         => '<a href="https://www.im-mass.com">Massamba MBAYE</a>',
+			'author_profile' => 'https://www.im-mass.com',
+			'homepage'       => 'https://www.im-mass.com/plugins/ai-chat-assistant',
+			'requires'       => '6.0',
+			'tested'         => '6.9',
+			'requires_php'   => '7.4',
+			'last_updated'   => isset( $release['published_at'] ) ? $release['published_at'] : '',
+			'download_link'  => $this->get_package_url( $release ),
+			'sections'       => $sections,
 		);
+	}
+
+	/**
+	 * Read the plugin's bundled readme.txt.
+	 *
+	 * @return string
+	 */
+	private function read_local_readme() {
+		$path = WAICB_DIR . 'readme.txt';
+		if ( ! is_readable( $path ) ) {
+			return '';
+		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$content = file_get_contents( $path );
+		return is_string( $content ) ? $content : '';
+	}
+
+	/**
+	 * Extract a "== Section ==" block from the readme and render it to HTML.
+	 *
+	 * @param string $readme  Full readme contents.
+	 * @param string $section Section title (without the == markers).
+	 * @return string HTML, or empty string if not found.
+	 */
+	private function readme_section( $readme, $section ) {
+		if ( '' === $readme ) {
+			return '';
+		}
+		$pattern = '/==\s*' . preg_quote( $section, '/' ) . '\s*==\s*(.*?)(?=\n==\s|\z)/s';
+		if ( ! preg_match( $pattern, $readme, $m ) ) {
+			return '';
+		}
+		return $this->format_readme( $m[1] );
+	}
+
+	/**
+	 * Convert the limited WordPress-readme markup to safe HTML.
+	 *
+	 * Handles "= Heading =" -> <h4>, "* item" -> <ul>, "1. item" -> <ol>,
+	 * blank-line paragraphs, and inline `code` / **bold**.
+	 *
+	 * @param string $text Raw section text.
+	 * @return string HTML.
+	 */
+	private function format_readme( $text ) {
+		$lines     = preg_split( '/\r\n|\r|\n/', trim( $text ) );
+		$html      = '';
+		$list_type = '';
+		$para      = '';
+
+		$flush_para = function () use ( &$para, &$html ) {
+			if ( '' !== trim( $para ) ) {
+				$html .= '<p>' . wp_kses_post( $this->inline_md( trim( $para ) ) ) . '</p>';
+			}
+			$para = '';
+		};
+		$close_list = function () use ( &$list_type, &$html ) {
+			if ( '' !== $list_type ) {
+				$html     .= '</' . $list_type . '>';
+				$list_type = '';
+			}
+		};
+
+		foreach ( $lines as $line ) {
+			$t = trim( $line );
+
+			if ( preg_match( '/^=\s*(.+?)\s*=$/', $t, $m ) ) {
+				$close_list();
+				$flush_para();
+				$html .= '<h4>' . esc_html( $m[1] ) . '</h4>';
+			} elseif ( preg_match( '/^\*\s+(.+)$/', $t, $m ) ) {
+				$flush_para();
+				if ( 'ul' !== $list_type ) {
+					$close_list();
+					$html     .= '<ul>';
+					$list_type = 'ul';
+				}
+				$html .= '<li>' . wp_kses_post( $this->inline_md( $m[1] ) ) . '</li>';
+			} elseif ( preg_match( '/^\d+\.\s+(.+)$/', $t, $m ) ) {
+				$flush_para();
+				if ( 'ol' !== $list_type ) {
+					$close_list();
+					$html     .= '<ol>';
+					$list_type = 'ol';
+				}
+				$html .= '<li>' . wp_kses_post( $this->inline_md( $m[1] ) ) . '</li>';
+			} elseif ( '' === $t ) {
+				$close_list();
+				$flush_para();
+			} else {
+				$para .= ( '' !== $para ? ' ' : '' ) . $t;
+			}
+		}
+
+		$close_list();
+		$flush_para();
+
+		return $html;
+	}
+
+	/**
+	 * Minimal inline markup: `code` and **bold**.
+	 *
+	 * @param string $s Text.
+	 * @return string
+	 */
+	private function inline_md( $s ) {
+		$s = preg_replace( '/`([^`]+)`/', '<code>$1</code>', $s );
+		$s = preg_replace( '/\*\*(.+?)\*\*/', '<strong>$1</strong>', $s );
+		return $s;
 	}
 
 	/**
