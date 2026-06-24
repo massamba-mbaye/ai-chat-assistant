@@ -3,7 +3,7 @@ Contributors:      massambambaye
 Tags:              chatbot, ai, assistant, jokko, support
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.3.1
+Stable tag:        1.4.0
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,6 +73,12 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 
 == Changelog ==
 
+= 1.4.0 =
+* New: redesigned settings page with a guided onboarding (status banner + 4 steps: create account, connect key, personalize, activate) and tabbed secondary settings (Assistant, Apparence, Affichage, Avancé).
+* New: connection test now updates the status banner and step checkmarks instantly.
+* Assistant instructions are now in a dedicated, always-accessible "Assistant" tab.
+* All previous widget settings are kept (bubble icon, title, welcome message, color, position, cookie, quick replies, display rules).
+
 = 1.3.1 =
 * New: contextual Jokko AI links in the settings — "Créer un compte" when no key is set, "Gérer mes crédits / Recharger" once connected (opens the Jokko AI dashboard).
 
@@ -106,6 +112,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+Redesigned, guided settings page. All your existing settings are preserved.
 
 = 1.3.1 =
 Adds quick links to create a Jokko AI account or recharge credits from the settings page.

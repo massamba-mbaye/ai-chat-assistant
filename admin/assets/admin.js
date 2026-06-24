@@ -1,7 +1,8 @@
 /**
  * AI Chat Assistant — Admin JS.
  *
- * - "Test connection" button (Jokko AI Cloud)
+ * - Tabs (Assistant / Apparence / Affichage / Avancé)
+ * - Guided onboarding helpers (test connection, step 3 link, char counter)
  * - Bubble icon media uploader
  * - Display rules show/hide
  * - "Clear conversations" confirmation
@@ -9,7 +10,53 @@
 ( function () {
     'use strict';
 
-    // ── Test Cloud connection ────────────────────────────────────────────────
+    // ── Tabs ──────────────────────────────────────────────────────────────────
+    function activateTab( name ) {
+        document.querySelectorAll( '.waicb-tab' ).forEach( function ( t ) {
+            t.classList.toggle( 'active', t.getAttribute( 'data-tab' ) === name );
+        } );
+        document.querySelectorAll( '.waicb-pane' ).forEach( function ( p ) {
+            p.classList.toggle( 'active', p.getAttribute( 'data-pane' ) === name );
+        } );
+    }
+
+    document.querySelectorAll( '.waicb-tab' ).forEach( function ( t ) {
+        t.addEventListener( 'click', function () { activateTab( t.getAttribute( 'data-tab' ) ); } );
+    } );
+
+    // Step 3 → open the Assistant tab and focus the instructions.
+    var goAssistant = document.getElementById( 'waicb-go-assistant' );
+    if ( goAssistant ) {
+        goAssistant.addEventListener( 'click', function () {
+            activateTab( 'assistant' );
+            var f = document.getElementById( 'waicb_instructions' );
+            if ( f ) {
+                f.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+                setTimeout( function () { f.focus(); }, 250 );
+            }
+        } );
+    }
+
+    // ── Instructions char counter ─────────────────────────────────────────────
+    var instr = document.getElementById( 'waicb_instructions' );
+    var instrCount = document.getElementById( 'waicb-instr-count' );
+    if ( instr && instrCount ) {
+        var updateCount = function () { instrCount.textContent = instr.value.length; };
+        instr.addEventListener( 'input', updateCount );
+        updateCount();
+    }
+
+    // ── Mark an onboarding step as done ───────────────────────────────────────
+    function markStepDone( id ) {
+        var el = document.getElementById( id );
+        if ( ! el ) { return; }
+        el.classList.remove( 'is-active' );
+        el.classList.add( 'is-done' );
+        var mark = el.querySelector( '.waicb-step__mark' );
+        if ( mark ) { mark.textContent = '✓'; }
+    }
+
+    // ── Test Cloud connection ─────────────────────────────────────────────────
     var testBtn    = document.getElementById( 'waicb-test-cloud' );
     var testResult = document.getElementById( 'waicb-test-cloud-result' );
 
@@ -24,7 +71,6 @@
             formData.append( 'nonce', waicbAdmin.nonce );
             formData.append( 'provider', 'cloud' );
 
-            // Send the key from the field if it has been modified (not the masked placeholder).
             var keyField = document.getElementById( 'waicb_cloud_key' );
             var keyValue = keyField ? keyField.value : '';
             if ( keyValue && keyValue.indexOf( '•' ) === -1 && keyValue.indexOf( '****' ) === -1 ) {
@@ -42,6 +88,17 @@
                 if ( data.success ) {
                     testResult.textContent = data.data.message;
                     testResult.className   = 'success';
+                    // Immediate visual feedback (saved state still applies on submit).
+                    markStepDone( 'waicb-s1' );
+                    markStepDone( 'waicb-s2' );
+                    var status = document.getElementById( 'waicb-status' );
+                    var ico    = document.getElementById( 'waicb-status-ico' );
+                    var text   = document.getElementById( 'waicb-status-text' );
+                    if ( status && ! status.classList.contains( 'waicb-status--live' ) ) {
+                        status.className = 'waicb-status waicb-status--connected';
+                        if ( ico ) { ico.textContent = '✓'; }
+                        if ( text ) { text.innerHTML = '<strong>' + waicbAdmin.i18n.connected + '</strong> ' + waicbAdmin.i18n.enableHint; }
+                    }
                 } else {
                     testResult.textContent = '✗ ' + data.data.message;
                     testResult.className   = 'error';
@@ -57,9 +114,9 @@
 
     // ── Bubble icon media uploader ───────────────────────────────────────────
     var uploadBtn   = document.getElementById( 'waicb-upload-icon' );
-    var removeBtn   = document.getElementById( 'waicb-remove-icon' );
-    var iconInput   = document.getElementById( 'waicb_bubble_icon' );
-    var iconPreview = document.getElementById( 'waicb-icon-preview' );
+    var removeBtn    = document.getElementById( 'waicb-remove-icon' );
+    var iconInput    = document.getElementById( 'waicb_bubble_icon' );
+    var iconPreview  = document.getElementById( 'waicb-icon-preview' );
 
     if ( uploadBtn && typeof wp !== 'undefined' && wp.media ) {
         var mediaFrame;

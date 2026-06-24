@@ -78,8 +78,10 @@ class WAICB_Admin_Settings {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'waicb_admin_nonce' ),
 				'i18n'    => array(
-					'testing'    => __( 'Test en cours…', 'ai-chat-assistant' ),
+					'testing'      => __( 'Test en cours…', 'ai-chat-assistant' ),
 					'confirmClear' => __( 'Êtes-vous sûr de vouloir supprimer toutes les conversations ?', 'ai-chat-assistant' ),
+					'connected'    => __( 'Connecté à Jokko AI.', 'ai-chat-assistant' ),
+					'enableHint'   => __( 'Activez le chatbot (étape 4) pour l\'afficher sur le site.', 'ai-chat-assistant' ),
 				),
 			)
 		);
