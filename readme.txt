@@ -3,7 +3,7 @@ Contributors:      massambambaye
 Tags:              chatbot, ai, assistant, jokko, support
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.4.1
+Stable tag:        1.4.2
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -72,6 +72,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 4. API logs (model + token usage)
 
 == Changelog ==
+
+= 1.4.2 =
+* Change: assistant instructions limit raised from 2000 to 2500 characters.
 
 = 1.4.1 =
 * Improve: the "View details" popup on the Plugins page is now richer (Description, Installation, FAQ, full changelog, and metadata), sourced from readme.txt instead of the raw GitHub release notes.

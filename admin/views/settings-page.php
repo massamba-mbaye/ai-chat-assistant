@@ -156,9 +156,9 @@ $waicb_step_class = function ( $done, $n ) use ( $waicb_active ) {
 			<div class="waicb-pane active" data-pane="assistant">
 				<div style="margin-bottom:16px;">
 					<label for="waicb_instructions" style="display:block;font-weight:600;margin-bottom:6px;"><?php esc_html_e( 'Instructions de l\'assistant (persona)', 'ai-chat-assistant' ); ?></label>
-					<textarea id="waicb_instructions" name="waicb_instructions" rows="6" class="large-text" maxlength="2000"
+					<textarea id="waicb_instructions" name="waicb_instructions" rows="6" class="large-text" maxlength="2500"
 					          placeholder="<?php esc_attr_e( 'Ex. : Tu es l\'assistant du site Exemple. Réponds en français, de façon concise et chaleureuse, à propos de nos services.', 'ai-chat-assistant' ); ?>"><?php echo esc_textarea( $waicb_instructions ); ?></textarea>
-					<p class="waicb-hint"><span id="waicb-instr-count">0</span> / 2000 · <?php esc_html_e( 'transmis à Jokko AI à chaque message.', 'ai-chat-assistant' ); ?></p>
+					<p class="waicb-hint"><span id="waicb-instr-count">0</span> / 2500 · <?php esc_html_e( 'transmis à Jokko AI à chaque message.', 'ai-chat-assistant' ); ?></p>
 				</div>
 				<div>
 					<label for="waicb_welcome_message" style="display:block;font-weight:600;margin-bottom:6px;"><?php esc_html_e( 'Message de bienvenue', 'ai-chat-assistant' ); ?></label>

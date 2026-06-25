@@ -122,8 +122,8 @@ class WAICB_Admin_Settings {
 
 		// Instructions (persona) du site — texte simple, plafonné, transmis au SaaS.
 		$instructions = isset( $_POST['waicb_instructions'] ) ? sanitize_textarea_field( wp_unslash( $_POST['waicb_instructions'] ) ) : '';
-		if ( mb_strlen( $instructions ) > 2000 ) {
-			$instructions = mb_substr( $instructions, 0, 2000 );
+		if ( mb_strlen( $instructions ) > 2500 ) {
+			$instructions = mb_substr( $instructions, 0, 2500 );
 		}
 		update_option( 'waicb_instructions', $instructions );
 
