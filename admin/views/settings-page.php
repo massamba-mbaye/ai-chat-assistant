@@ -77,6 +77,13 @@ $waicb_step_class = function ( $done, $n ) use ( $waicb_active ) {
 	<div class="waicb-status <?php echo esc_attr( $waicb_status_class ); ?>" id="waicb-status">
 		<span class="waicb-status__ico" id="waicb-status-ico"><?php echo esc_html( $waicb_status_ico ); ?></span>
 		<span id="waicb-status-text"><?php echo wp_kses( $waicb_status_text, array( 'strong' => array() ) ); ?></span>
+		<?php if ( $waicb_has_cloud_key ) : ?>
+			<span class="waicb-status__right">
+				<?php esc_html_e( 'Crédits :', 'ai-chat-assistant' ); ?>
+				<strong id="waicb-credits">…</strong>
+				&middot; <a href="<?php echo esc_url( WAICB_CLOUD_DASHBOARD ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Recharger', 'ai-chat-assistant' ); ?></a>
+			</span>
+		<?php endif; ?>
 	</div>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">

@@ -202,4 +202,57 @@ class WAICB_Rest_Api {
 		$err  = is_array( $data ) && isset( $data['error'] ) ? $data['error'] : 'HTTP ' . (int) $code;
 		wp_send_json_error( array( 'message' => $err ) );
 	}
+
+	/**
+	 * AJAX handler — return the Jokko AI credit balance for the dashboard.
+	 *
+	 * Calls the read-only status endpoint with the stored account key (which
+	 * never leaves the server). Consumes no credit.
+	 *
+	 * @return void
+	 */
+	public function handle_credits() {
+		check_ajax_referer( 'waicb_admin_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Accès refusé.', 'ai-chat-assistant' ) ) );
+			return;
+		}
+
+		$account_key = WAICB_Crypto::decrypt( get_option( 'waicb_cloud_key', '' ) );
+		if ( '' === $account_key ) {
+			wp_send_json_error( array( 'message' => __( 'Clé de compte non configurée.', 'ai-chat-assistant' ) ) );
+			return;
+		}
+
+		$response = wp_remote_post(
+			WAICB_CLOUD_STATUS_URL,
+			array(
+				'timeout' => 15,
+				'headers' => array( 'Content-Type' => 'application/json' ),
+				'body'    => wp_json_encode(
+					array(
+						'account_key' => $account_key,
+						'site_url'    => home_url(),
+					)
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			wp_send_json_error( array( 'message' => $response->get_error_message() ) );
+			return;
+		}
+
+		$code = wp_remote_retrieve_response_code( $response );
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( 200 === $code && is_array( $data ) && isset( $data['credits_left'] ) ) {
+			wp_send_json_success( array( 'credits' => (int) $data['credits_left'] ) );
+			return;
+		}
+
+		$err = is_array( $data ) && isset( $data['error'] ) ? $data['error'] : 'HTTP ' . (int) $code;
+		wp_send_json_error( array( 'message' => $err ) );
+	}
 }

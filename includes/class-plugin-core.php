@@ -80,9 +80,10 @@ class WAICB_Plugin_Core {
 		$conversations->init();
 		$logs->init();
 
-		// AJAX handler must be registered outside rest_api_init to fire on admin-ajax.php.
+		// AJAX handlers must be registered outside rest_api_init to fire on admin-ajax.php.
 		$rest = new WAICB_Rest_Api();
 		add_action( 'wp_ajax_waicb_test_api', array( $rest, 'handle_test_api' ) );
+		add_action( 'wp_ajax_waicb_credits', array( $rest, 'handle_credits' ) );
 	}
 
 	/**

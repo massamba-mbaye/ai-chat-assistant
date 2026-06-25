@@ -82,6 +82,8 @@ class WAICB_Admin_Settings {
 					'confirmClear' => __( 'Êtes-vous sûr de vouloir supprimer toutes les conversations ?', 'ai-chat-assistant' ),
 					'connected'    => __( 'Connecté à Jokko AI.', 'ai-chat-assistant' ),
 					'enableHint'   => __( 'Activez le chatbot (étape 4) pour l\'afficher sur le site.', 'ai-chat-assistant' ),
+					'creditsSuffix'      => __( 'messages', 'ai-chat-assistant' ),
+					'creditsUnavailable' => __( 'indisponible', 'ai-chat-assistant' ),
 				),
 			)
 		);

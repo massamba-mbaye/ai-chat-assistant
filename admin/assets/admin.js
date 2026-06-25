@@ -46,6 +46,25 @@
         updateCount();
     }
 
+    // ── Credit balance (Cloud) ────────────────────────────────────────────────
+    var creditsEl = document.getElementById( 'waicb-credits' );
+    if ( creditsEl ) {
+        var creditsData = new FormData();
+        creditsData.append( 'action', 'waicb_credits' );
+        creditsData.append( 'nonce', waicbAdmin.nonce );
+
+        fetch( waicbAdmin.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: creditsData } )
+        .then( function ( r ) { return r.json(); } )
+        .then( function ( d ) {
+            if ( d.success ) {
+                creditsEl.textContent = Number( d.data.credits ).toLocaleString( 'fr-FR' ) + ' ' + waicbAdmin.i18n.creditsSuffix;
+            } else {
+                creditsEl.textContent = waicbAdmin.i18n.creditsUnavailable;
+            }
+        } )
+        .catch( function () { creditsEl.textContent = waicbAdmin.i18n.creditsUnavailable; } );
+    }
+
     // ── Mark an onboarding step as done ───────────────────────────────────────
     function markStepDone( id ) {
         var el = document.getElementById( id );

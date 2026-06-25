@@ -3,7 +3,7 @@ Contributors:      massambambaye
 Tags:              chatbot, ai, assistant, jokko, support
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.4.2
+Stable tag:        1.5.0
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,6 +73,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 
 == Changelog ==
 
+= 1.5.0 =
+* New: the settings status banner now shows the remaining Jokko AI credit balance, with a quick "Recharger" link. Read-only, consumes no credit.
+
 = 1.4.2 =
 * Change: assistant instructions limit raised from 2000 to 2500 characters.
 
@@ -118,6 +121,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.5.0 =
+Shows your remaining credit balance in the settings. Requires the Jokko AI service to be updated (status endpoint).
 
 = 1.4.1 =
 Richer plugin details popup on the Plugins page.
