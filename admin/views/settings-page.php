@@ -99,7 +99,7 @@ $waicb_step_class = function ( $done, $n ) use ( $waicb_active ) {
 			<div class="<?php echo esc_attr( $waicb_step_class( $waicb_s1, 1 ) ); ?>" id="waicb-s1">
 				<div class="waicb-step__mark"><?php echo $waicb_s1 ? '✓' : '1'; ?></div>
 				<div class="waicb-step__body">
-					<h3><?php esc_html_e( 'Créez votre compte Jokko AI', 'ai-chat-assistant' ); ?><span class="waicb-gift"><?php esc_html_e( '50 messages offerts', 'ai-chat-assistant' ); ?></span></h3>
+					<h3><?php esc_html_e( 'Créez votre compte Jokko AI', 'ai-chat-assistant' ); ?><span class="waicb-gift"><?php esc_html_e( '25 conversations offertes', 'ai-chat-assistant' ); ?></span></h3>
 					<p><?php esc_html_e( 'Gratuit, sans carte bancaire. Vous obtiendrez une clé de compte à coller à l\'étape 2.', 'ai-chat-assistant' ); ?></p>
 					<a class="button waicb-btn-teal" href="<?php echo esc_url( WAICB_CLOUD_DASHBOARD . '?signup=1' ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Créer un compte (gratuit)', 'ai-chat-assistant' ); ?></a>
 				</div>

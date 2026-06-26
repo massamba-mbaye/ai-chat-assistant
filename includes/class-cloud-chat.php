@@ -48,13 +48,14 @@ class WAICB_Cloud_Chat {
 	 * @return array {reply: string, usage: array, model: string}
 	 * @throws RuntimeException On HTTP or API errors.
 	 */
-	public function chat( $message, $history ) {
+	public function chat( $message, $history, $conversation_id = '' ) {
 		$payload = array(
-			'account_key'  => $this->account_key,
-			'message'      => $message,
-			'history'      => $this->normalize_history( $history ),
-			'instructions' => $this->instructions,
-			'site_url'     => home_url(),
+			'account_key'     => $this->account_key,
+			'message'         => $message,
+			'history'         => $this->normalize_history( $history ),
+			'instructions'    => $this->instructions,
+			'conversation_id' => $conversation_id,
+			'site_url'        => home_url(),
 		);
 
 		$response = wp_remote_post(

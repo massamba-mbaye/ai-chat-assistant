@@ -88,8 +88,8 @@ class WAICB_Rest_Api {
 			// Allow external filtering of the payload.
 			$history = apply_filters( 'waicb_messages_payload', $history, $session_id );
 
-			// 7. Dispatch to AI engine.
-			$result = WAICB_Api_Router::dispatch( $clean_message, $session_id, $history );
+			// 7. Dispatch to AI engine ($body_sk = visitor key, for per-conversation billing).
+			$result = WAICB_Api_Router::dispatch( $clean_message, $session_id, $history, $body_sk );
 
 			$reply = isset( $result['reply'] ) ? $result['reply'] : '';
 			$usage = isset( $result['usage'] ) ? $result['usage'] : array();

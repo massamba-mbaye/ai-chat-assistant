@@ -3,7 +3,7 @@ Contributors:      massambambaye
 Tags:              chatbot, ai, assistant, jokko, support
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.5.0
+Stable tag:        1.6.0
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,6 +73,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 
 == Changelog ==
 
+= 1.6.0 =
+* Change: billing is now per conversation (1 credit = 1 visitor conversation, all messages included) instead of per message. The plugin sends the visitor conversation key to the Jokko AI service. Balance and wording now read "conversations".
+
 = 1.5.0 =
 * New: the settings status banner now shows the remaining Jokko AI credit balance, with a quick "Recharger" link. Read-only, consumes no credit.
 
@@ -121,6 +124,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.6.0 =
+Billing is now per conversation. Requires the Jokko AI service to be updated (conversations table + per-conversation logic).
 
 = 1.5.0 =
 Shows your remaining credit balance in the settings. Requires the Jokko AI service to be updated (status endpoint).
