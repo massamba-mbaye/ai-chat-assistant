@@ -25,12 +25,32 @@
         document.cookie = name + '=' + encodeURIComponent( value ) + '; expires=' + expires + '; path=/; SameSite=Lax' + secure;
     }
 
-    // ── Session key ──────────────────────────────────────────────────────────
-    var sessionKey = getCookie( 'waicb_session' );
-    if ( ! sessionKey || ! /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test( sessionKey ) ) {
-        sessionKey = generateUUID();
-        setCookie( 'waicb_session', sessionKey, waicbConfig.cookieDays );
+    // ── localStorage helpers (sauvegarde de l'identité) ──────────────────────
+    var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    function lsGet( key ) {
+        try { return window.localStorage.getItem( key ) || ''; } catch ( e ) { return ''; }
     }
+    function lsSet( key, value ) {
+        try { window.localStorage.setItem( key, value ); } catch ( e ) {}
+    }
+
+    // Persiste l'identité dans le cookie ET le localStorage : elle survit ainsi à
+    // l'effacement de l'un OU de l'autre (cas le plus courant de cookie « perdu »).
+    function persistSession( key ) {
+        setCookie( 'waicb_session', key, waicbConfig.cookieDays );
+        lsSet( 'waicb_session', key );
+    }
+
+    // ── Session key (cookie prioritaire, localStorage en repli) ──────────────
+    var sessionKey = getCookie( 'waicb_session' );
+    if ( ! UUID_RE.test( sessionKey ) ) {
+        // Cookie absent/invalide : on tente de restaurer depuis le localStorage
+        // avant de créer une nouvelle identité (évite de recompter le visiteur).
+        var stored = lsGet( 'waicb_session' );
+        sessionKey = UUID_RE.test( stored ) ? stored : generateUUID();
+    }
+    persistSession( sessionKey );
 
     // ── Time formatter ───────────────────────────────────────────────────────
     function formatTime( date ) {
@@ -413,7 +433,7 @@
                 appendMessage( 'assistant', data.data.reply );
                 if ( data.data.session_key ) {
                     sessionKey = data.data.session_key;
-                    setCookie( 'waicb_session', sessionKey, waicbConfig.cookieDays );
+                    persistSession( sessionKey );
                 }
             } else {
                 var errMsg = ( data.data && data.data.message )

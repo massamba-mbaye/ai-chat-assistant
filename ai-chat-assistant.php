@@ -3,7 +3,7 @@
  * Plugin Name:       AI Chat Assistant
  * Plugin URI:        https://www.im-mass.com/plugins/ai-chat-assistant
  * Description:       Adds an AI chatbot to any site, powered by the Jokko AI Cloud service (prepaid credits — no AI key to manage).
- * Version:           1.6.0
+ * Version:           1.6.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Massamba MBAYE
@@ -19,7 +19,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // ── Constantes ────────────────────────────────────────────────────────────────
-define( 'WAICB_VERSION', '1.6.0' );
+define( 'WAICB_VERSION', '1.6.1' );
 define( 'WAICB_FILE', __FILE__ );
 define( 'WAICB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WAICB_URL', plugin_dir_url( __FILE__ ) );

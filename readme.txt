@@ -3,7 +3,7 @@ Contributors:      massambambaye
 Tags:              chatbot, ai, assistant, jokko, support
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.6.0
+Stable tag:        1.6.1
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,6 +73,10 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 
 == Changelog ==
 
+= 1.6.1 =
+* Improve: the visitor identity (used to group a conversation) is now backed up in localStorage in addition to the cookie, so it survives the loss of either one and the visitor is not re-counted as a new conversation.
+* Improve: the plugin sends the visitor's salted, hashed IP to the Jokko AI service as an identity fallback. Visitors without a usable cookie are grouped per IP over the billing window instead of being billed per message.
+
 = 1.6.0 =
 * Change: billing is now per conversation (1 credit = 1 visitor conversation, all messages included) instead of per message. The plugin sends the visitor conversation key to the Jokko AI service. Balance and wording now read "conversations".
 
@@ -124,6 +128,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.6.1 =
+More robust per-conversation billing: visitor identity is backed up in localStorage and falls back to a hashed IP, so visitors are grouped correctly instead of being re-counted.
 
 = 1.6.0 =
 Billing is now per conversation. Requires the Jokko AI service to be updated (conversations table + per-conversation logic).

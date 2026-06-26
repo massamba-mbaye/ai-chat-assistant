@@ -55,6 +55,9 @@ class WAICB_Cloud_Chat {
 			'history'         => $this->normalize_history( $history ),
 			'instructions'    => $this->instructions,
 			'conversation_id' => $conversation_id,
+			// Repli d'identité côté SaaS quand le cookie visiteur manque (navigation
+			// privée, cookies bloqués) : IP visiteur hashée + salée, anonyme et stable.
+			'ip_hash'         => WAICB_Security::hash_ip(),
 			'site_url'        => home_url(),
 		);
 
