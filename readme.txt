@@ -3,7 +3,7 @@ Contributors:      massambambaye
 Tags:              chatbot, ai, assistant, jokko, support
 Requires at least: 6.0
 Tested up to:      6.9
-Stable tag:        1.6.1
+Stable tag:        1.6.2
 Requires PHP:      7.4
 License:           GPLv2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,6 +73,10 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 
 == Changelog ==
 
+= 1.6.2 =
+* New: bare links in chatbot replies are now clickable. URLs written in plain text (https://… or www.…) are auto-linked, in addition to Markdown links.
+* Fix: links that contain a long digit sequence (for example WhatsApp wa.me links) are no longer broken by the phone-number detection. Built links are protected from the later rendering passes.
+
 = 1.6.1 =
 * Improve: the visitor identity (used to group a conversation) is now backed up in localStorage in addition to the cookie, so it survives the loss of either one and the visitor is not re-counted as a new conversation.
 * Improve: the plugin sends the visitor's salted, hashed IP to the Jokko AI service as an identity fallback. Visitors without a usable cookie are grouped per IP over the billing window instead of being billed per message.
@@ -128,6 +132,9 @@ In **AI Chatbot > Settings**, uncheck "Enable chatbot". The widget disappears im
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.6.2 =
+Plain-text links are now clickable and WhatsApp (wa.me) links are no longer broken by phone-number detection.
 
 = 1.6.1 =
 More robust per-conversation billing: visitor identity is backed up in localStorage and falls back to a hashed IP, so visitors are grouped correctly instead of being re-counted.

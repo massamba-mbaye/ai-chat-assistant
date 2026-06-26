@@ -86,14 +86,36 @@
             .replace( /</g, '&lt;' )
             .replace( />/g, '&gt;' );
 
+        // Neutralise quotes/espaces dans une URL pour qu'elle ne puisse pas
+        // s'échapper de l'attribut href (la passe d'échappement HTML ne gère que < > &).
+        function safeHref( url ) {
+            return url.replace( /"/g, '%22' ).replace( /'/g, '%27' ).replace( /\s/g, '%20' );
+        }
+
         // 3. Markdown links [text](url).
         escaped = escaped.replace(
             /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
             function ( _, linkText, url ) {
-                // Escape quotes/spaces so the URL can't break out of the href
-                // attribute (the earlier HTML-escape pass only handles < > &).
-                var safeUrl = url.replace( /"/g, '%22' ).replace( /'/g, '%27' ).replace( /\s/g, '%20' );
-                return '<a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer">' + linkText + '</a>';
+                return '<a href="' + safeHref( url ) + '" target="_blank" rel="noopener noreferrer">' + linkText + '</a>';
+            }
+        );
+
+        // 3a. Auto-lien des URLs en clair + protection des liens déjà construits.
+        // On met de côté chaque <a> (placeholder) pour que les passes suivantes
+        // (téléphone, gras, etc.) ne touchent jamais à son contenu, href compris.
+        var anchors = [];
+        function stashAnchor( html ) {
+            anchors.push( html );
+            return '\x00A' + ( anchors.length - 1 ) + '\x00';
+        }
+        // Protéger les liens Markdown déjà transformés.
+        escaped = escaped.replace( /<a\b[^>]*>[\s\S]*?<\/a>/gi, stashAnchor );
+        // Linkifier les URLs nues restantes (https://… ou www.…), schéma non ambigu.
+        escaped = escaped.replace(
+            /(?<=^|[\s(])((?:https?:\/\/|www\.)[^\s<]+?)([.,;:!?)]*)(?=\s|$|<)/gi,
+            function ( _, url, trail ) {
+                var href = /^https?:\/\//i.test( url ) ? url : 'http://' + url;
+                return stashAnchor( '<a href="' + safeHref( href ) + '" target="_blank" rel="noopener noreferrer">' + url + '</a>' ) + trail;
             }
         );
 
@@ -142,6 +164,11 @@
         // 9. Restore safe iframes inside a responsive container.
         escaped = escaped.replace( /\x00MAP(\d+)\x00/g, function ( _, idx ) {
             return '<div class="waicb-map-embed">' + iframes[ parseInt( idx, 10 ) ] + '</div>';
+        } );
+
+        // 10. Restaurer les liens mis de côté à l'étape 3a.
+        escaped = escaped.replace( /\x00A(\d+)\x00/g, function ( _, idx ) {
+            return anchors[ parseInt( idx, 10 ) ];
         } );
 
         return escaped;
